@@ -5,9 +5,13 @@ client="${HOA_CLIENT:-$root/release/build/macos/client-target/release/HordesOfAz
 if [ ! -x "$client" ]; then
   client="$root/release/build/macos/client/HordesOfAzeroth"
 fi
-mkdir -p "$root/Interface/GlueXML" "$root/Logs" "$root/benilla-config/AddOns"
+mkdir -p "$root/Interface/GlueXML" "$root/Logs" "$root/benilla-config/AddOns" "$root/client"
 printf '%s\n' 'BONK_ACCOUNT = "PLAYER";' 'BONK_PASSWORD = "player";' 'HOA_LANGUAGE = "enUS";' > "$root/Interface/GlueXML/BonkAccount.lua"
 printf '%s\n' 'BONK_STATS = nil;' > "$root/Interface/GlueXML/BonkStats.lua"
+# WOW_RIG character names need a checkout identity word.
+if [ ! -f "$root/client/.probe-identity" ]; then
+  printf '%s\n' 'WOW_USER=PLAYER' 'WOW_CHAR=Probesmoke' 'WOW_PASS=player' > "$root/client/.probe-identity"
+fi
 if [ -d "$root/Interface/AddOns/HordesOfAzeroth" ] && [ ! -e "$root/benilla-config/AddOns/HordesOfAzeroth" ]; then
   cp -a "$root/Interface/AddOns/HordesOfAzeroth" "$root/benilla-config/AddOns/"
 fi
@@ -18,7 +22,14 @@ export WOW_PASS="${WOW_PASS:-player}"
 export WOW_REALM="${WOW_REALM:-Hordes of Azeroth}"
 export WGPU_BACKEND="${WGPU_BACKEND:-metal}"
 export WOW_UNATTENDED="${WOW_UNATTENDED:-1}"
-# WOW_RIG needs a client built WITH default/dev features (not --no-default-features ship).
+# Needs a client built WITH default/dev features (cargo build --release -p hoa).
 export WOW_RIG="${WOW_RIG:-human warrior 1}"
+# BonkGlue hijacks stock create/select; for first-time WOW_RIG create set HOA_STOCK_GLUE=1.
+if [ "${HOA_STOCK_GLUE:-0}" = 1 ]; then
+  toc="$root/Interface/GlueXML/GlueXML.toc"
+  if [ ! -f "$toc.bonk" ]; then cp "$toc" "$toc.bonk"; fi
+  grep -v -E 'BonkGlue|BonkCoop|BonkGluePad|BonkGlueLocale' "$toc.bonk" > "$toc"
+  trap 'mv -f "$toc.bonk" "$toc" 2>/dev/null || true' EXIT
+fi
 cd "$root"
 exec "$client" "$@"

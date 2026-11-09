@@ -104,3 +104,6 @@ README Mac badge + install, FAQ, `BUILDING.md` Darwin notes, Discord / issue poi
 - Ship profile builds `--no-default-features` so `WOW_RIG` is absent; need a `cargo build --release -p hoa` (default `dev` features) to auto-create a body for enter-world smoke.
 - Glue stubs: write `BonkAccount.lua` / `BonkStats.lua` locally (gitignored). zhCN + enUS `FRIZQT__.TTF` → missing CJK glyphs; smoke with `HOA_LANGUAGE=enUS`.
 - `tools/macos/smoke-client.sh` wraps the unattended env.
+- **Enter-world smoke OK** (2026-11-09): release+dev client + `.probe-identity` + stock glue (BonkGlue temporarily stripped) + `WOW_RIG="human warrior 1"` → created `Humwarsmoke`, `net: in world as Humwarsmoke`, preflight on **GM Island**.
+- BonkGlue blocks stock `WOW_RIG` create/select presses; use `HOA_STOCK_GLUE=1` for first create, then restore Bonk for HoA hero UI.
+- Ship (`--no-default-features`) still the player binary; release+dev is the probe/smoke binary.

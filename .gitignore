@@ -62,3 +62,6 @@ tools/bench/results.json
 
 __pycache__/
 tools/clientfix/build/
+
+.probe-identity
+client/.probe-identity
