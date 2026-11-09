@@ -88,6 +88,9 @@ README Mac badge + install, FAQ, `BUILDING.md` Darwin notes, Discord / issue poi
 - 2026-11-09: Forked `vvenv/hordes-of-azeroth`, `-client`, `-server`.
 - Linked repo `Data` / `WoW.exe` → `../wow-data/client`.
 - enUS `Data` is missing `base.MPQ` (zhCN tree has it). Track as data risk if client boot fails.
-- Official MariaDB 11.4.13 archive has **no macOS bintar** (only linux + winx64). Packaging via `tools/macos/pack-mariadb.sh` from Homebrew.
-- Started Phase 1 launcher tri-state (`Platform` / `GameFolder` / `GameClient` / `PortOwners` / `LocalServer`) and `tools/macos/build.sh`.
-- Submodule checkout + `dotnet publish osx-arm64` + `brew install mariadb` still running on first machine sync.
+- Official MariaDB 11.4.13 archive has **no macOS bintar** (only linux + winx64). Packaging via `tools/macos/pack-mariadb.sh` from Homebrew (`mariadb` 13.0.2 bottle eventually installed).
+- Launcher `osx-arm64` publish OK (`release/build/macos/launcher/HoALauncher`).
+- Submodules checked out; client `cargo build --profile ship -p hoa` in progress.
+- Server CMake configures on Darwin with Homebrew MariaDB + OpenSSL.
+- Fix required: `BonkIntegrity.cpp` used Linux `<link.h>` / `dl_iterate_phdr` — gated to `__linux__`; macOS FindCodeRanges is a no-op for now.
+- `FindMySQL.cmake` gained Homebrew `mariadb` / `mariadb-connector-c` paths.

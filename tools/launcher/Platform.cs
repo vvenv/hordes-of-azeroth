@@ -88,8 +88,11 @@ namespace HordesOfAzeroth.Launcher
                 return;
             if (!(IsElf(file) || IsMachO(file)))
                 return;
-            File.SetUnixFileMode(file, Executable);
+            SetUnixExecutable(file);
         }
+
+        [System.Runtime.Versioning.UnsupportedOSPlatform("windows")]
+        static void SetUnixExecutable(string file) => File.SetUnixFileMode(file, Executable);
 
         static bool IsElf(string file) => StartsWithMagic(file, ElfMagic);
 
