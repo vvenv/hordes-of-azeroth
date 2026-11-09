@@ -116,6 +116,16 @@ def reuse_zip(name: str, zip_path: Path) -> dict:
     return entry
 
 
+def nav_groups() -> list[dict]:
+    """Nav groups without downloads, like release.ps1 when no prebuilt mmaps
+    exist: the launcher builds them locally with MoveMapGenerator.
+    Set HOA_NO_NAV=1 to skip the "Monster paths" step entirely."""
+    if os.environ.get("HOA_NO_NAV") == "1":
+        return []
+    groups = json.loads((ROOT / "config" / "navtiles.json").read_text())["groups"]
+    return [{"name": g["name"], "maps": g["maps"]} for g in groups]
+
+
 def main() -> None:
     # VERSION marker used by config package
     version_file = ROOT / "release" / "build" / "VERSION"
@@ -224,7 +234,7 @@ def main() -> None:
                 "notes": "- Local macOS arm64 packaging smoke (file: assets).",
             }
         ],
-        "navTiles": [],
+        "navTiles": nav_groups(),
         "thirdParty": third_party,
         "packages": packages,
     }

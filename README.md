@@ -13,6 +13,7 @@
 <p align="center">
   <a href="https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher.exe"><img src="https://img.shields.io/badge/Download-Windows-0078D4?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Download for Windows"></a>
   <a href="https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher-linux.tar.gz"><img src="https://img.shields.io/badge/Download-Linux_%2F_Steam_Deck-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Download for Linux and Steam Deck"></a>
+  <a href="https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher-macos.tar.gz"><img src="https://img.shields.io/badge/Download-macOS_(Apple_Silicon)-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS"></a>
   <a href="https://github.com/jonhaldors/hordes-of-azeroth/releases/latest"><img src="https://img.shields.io/github/v/release/jonhaldors/hordes-of-azeroth?label=latest&color=3a8a4a&style=for-the-badge" alt="Latest version"></a>
   <a href="https://discord.gg/zpYfsqh6Dn"><img src="https://img.shields.io/badge/Discord-Join_us-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Discord"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-GPL--3.0-4a3a36?style=for-the-badge" alt="Licence: GPL-3.0"></a>
@@ -47,16 +48,18 @@ https://github.com/user-attachments/assets/3a82f020-7192-48dc-b6be-f6316bda0225
 
 - Your own copy of **World of Warcraft 1.12.1, build 5875, English (enUS)**. Hordes of Azeroth doesn't include the game.
 - A copy of that client used only for Hordes of Azeroth. The launcher adds its own files to the folder, so don't use your folder for other servers.
-- Windows 10 or 11 (64-bit), or Linux and Steam Deck (beta). About 3 GB of free space next to the game, and up-to-date graphics drivers.
+- Windows 10 or 11 (64-bit), Linux and Steam Deck (beta), or macOS on Apple Silicon (beta). About 3 GB of free space next to the game, and up-to-date graphics drivers.
 
 ### Install
 
-1. Download **[HoALauncher.exe](https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher.exe)** for Windows, or **[HoALauncher-linux.tar.gz](https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher-linux.tar.gz)** for Linux and Steam Deck.
-2. Put it in your World of Warcraft folder, next to `WoW.exe`. On Linux, unpack it there.
+1. Download **[HoALauncher.exe](https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher.exe)** for Windows, or **[HoALauncher-linux.tar.gz](https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher-linux.tar.gz)** for Linux and Steam Deck, or **[HoALauncher-macos.tar.gz](https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher-macos.tar.gz)** for a Mac with Apple Silicon.
+2. Put it in your World of Warcraft folder, next to `WoW.exe`. On Linux and Mac, unpack it there.
 3. Start it and press **Install**. The first install takes a few minutes.
 4. Press **Play**.
 
 From then on, always start the game with the launcher. It starts the server, then the game, and stops the server when you close the game. On Steam Deck, add `HoALauncher` to Steam as a non-Steam game.
+
+On Mac, the launcher isn't signed by Apple yet, so macOS blocks it the first time. Open Terminal in your World of Warcraft folder and run `xattr -dr com.apple.quarantine HoALauncher`, then start it with `./HoALauncher` or by double-clicking it. If macOS still says it can't be opened, allow it under **System Settings → Privacy & Security**.
 
 <p align="center">
   <img src=".github/images/launcher.jpg" width="720" alt="The launcher during the first install">
@@ -185,7 +188,7 @@ Packs that come as <code>patch-?.MPQ</code> files go in the game's <code>Data</c
 <details>
 <summary><b>Does it run on Mac or Linux?</b></summary>
 <br>
-Linux and Steam Deck are supported in beta, see <a href="#install">Install</a>. Mac isn't supported.
+Linux, Steam Deck and Macs with Apple Silicon (M1 or later) are supported in beta, see <a href="#install">Install</a>. Intel Macs aren't supported.
 </details>
 
 <br>
