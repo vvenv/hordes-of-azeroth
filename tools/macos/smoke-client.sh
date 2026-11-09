@@ -12,8 +12,11 @@ printf '%s\n' 'BONK_STATS = nil;' > "$root/Interface/GlueXML/BonkStats.lua"
 if [ ! -f "$root/client/.probe-identity" ]; then
   printf '%s\n' 'WOW_USER=PLAYER' 'WOW_CHAR=Probesmoke' 'WOW_PASS=player' > "$root/client/.probe-identity"
 fi
-if [ -d "$root/Interface/AddOns/HordesOfAzeroth" ] && [ ! -e "$root/benilla-config/AddOns/HordesOfAzeroth" ]; then
-  cp -a "$root/Interface/AddOns/HordesOfAzeroth" "$root/benilla-config/AddOns/"
+# Unattended runs otherwise use a temp benilla-config, which hides repo AddOns textures.
+export BENILLA_HOME="${BENILLA_HOME:-$root/benilla-config}"
+if [ -d "$root/Interface/AddOns/HordesOfAzeroth" ]; then
+  mkdir -p "$BENILLA_HOME/AddOns"
+  rsync -a --delete "$root/Interface/AddOns/HordesOfAzeroth/" "$BENILLA_HOME/AddOns/HordesOfAzeroth/"
 fi
 export WOW_DATA="${WOW_DATA:-$root/Data}"
 export WOW_HOST="${WOW_HOST:-127.0.0.1}"
@@ -23,7 +26,10 @@ export WOW_REALM="${WOW_REALM:-Hordes of Azeroth}"
 export WGPU_BACKEND="${WGPU_BACKEND:-metal}"
 export WOW_UNATTENDED="${WOW_UNATTENDED:-1}"
 # Needs a client built WITH default/dev features (cargo build --release -p hoa).
-export WOW_RIG="${WOW_RIG:-human warrior 1}"
+# Skip auto-rig when the caller already named a character, or set WOW_RIG= to clear.
+if [ -z "${WOW_RIG+x}" ] && [ -z "${WOW_CHAR:-}" ]; then
+  export WOW_RIG="human warrior 1"
+fi
 # BonkGlue hijacks stock create/select; for first-time WOW_RIG create set HOA_STOCK_GLUE=1.
 if [ "${HOA_STOCK_GLUE:-0}" = 1 ]; then
   toc="$root/Interface/GlueXML/GlueXML.toc"

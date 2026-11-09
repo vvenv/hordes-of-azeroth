@@ -107,3 +107,7 @@ README Mac badge + install, FAQ, `BUILDING.md` Darwin notes, Discord / issue poi
 - **Enter-world smoke OK** (2026-11-09): release+dev client + `.probe-identity` + stock glue (BonkGlue temporarily stripped) + `WOW_RIG="human warrior 1"` → created `Humwarsmoke`, `net: in world as Humwarsmoke`, preflight on **GM Island**.
 - BonkGlue blocks stock `WOW_RIG` create/select presses; use `HOA_STOCK_GLUE=1` for first create, then restore Bonk for HoA hero UI.
 - Ship (`--no-default-features`) still the player binary; release+dev is the probe/smoke binary.
+- **BonkGlue enter-world OK** (2026-11-09): full GlueXML toc + `WOW_CHAR=Humwarsmoke` → `net: in world as Humwarsmoke` through Bonk hero UI. Unattended smokes need `BENILLA_HOME=<repo>/benilla-config` (now default in `smoke-client.sh`) so `Interface\AddOns\HordesOfAzeroth\Textures\*` resolve; without it glue pad textures warn and stay green.
+- Launcher Phase 1 code already tri-state (`Platform.IsMac`, Metal `WGPU_BACKEND`, Mach-O exec bit, `manifest-macos.json`).
+- **Install layout stage OK** (2026-11-09): `tools/macos/pack-launcher.py` → `HoALauncher-macos.tar.gz` (~42 MB); `tools/macos/stage-dev-install.sh` lays launcher + ship client + server + MariaDB + Glue/AddOns into `release/build/macos/dev-install` (Data/WoW.exe symlinked from wow-data). Staged ship client + `WOW_CHAR=Humwarsmoke` entered world against the live local realm.
+- Remaining for shippable beta: `manifest-macos.json` via `tools/release.ps1` (needs `pwsh`), Gatekeeper/`xattr` notes, and a full launcher GUI Install→Play on a clean folder.
