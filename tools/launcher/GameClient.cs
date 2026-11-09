@@ -173,6 +173,8 @@ namespace HordesOfAzeroth.Launcher
             info.EnvironmentVariables["WOW_DATA"] = m_folder.Data;
             if (UseDirectX12 && Platform.IsWindows)
                 info.EnvironmentVariables["WGPU_BACKEND"] = "dx12";
+            else if (Platform.IsMac)
+                info.EnvironmentVariables["WGPU_BACKEND"] = "metal";
             Directory.CreateDirectory(Path.GetDirectoryName(m_folder.ClientLog));
             m_log?.Dispose();
             m_log = new StreamWriter(m_folder.ClientLog, false, new UTF8Encoding(false)) { AutoFlush = true };
@@ -191,7 +193,12 @@ namespace HordesOfAzeroth.Launcher
             {
                 if (game.HasExited)
                     throw new InvalidOperationException(Loc.T("The game closed while starting. Its log is {0}.", m_folder.ClientLog));
-                if (game.MainWindowHandle != IntPtr.Zero || clock.Elapsed > TimeSpan.FromSeconds(2))
+                if (!Platform.IsWindows)
+                {
+                    if (clock.Elapsed > TimeSpan.FromSeconds(2))
+                        return game;
+                }
+                else if (game.MainWindowHandle != IntPtr.Zero || clock.Elapsed > TimeSpan.FromSeconds(2))
                     return game;
                 await Task.Delay(250, cancel);
                 game.Refresh();
@@ -227,6 +234,17 @@ namespace HordesOfAzeroth.Launcher
             Process game = m_started;
             if (game == null)
                 return true;
+            if (!Platform.IsWindows)
+            {
+                Stopwatch unixClock = Stopwatch.StartNew();
+                while (unixClock.Elapsed < limit)
+                {
+                    if (game.HasExited)
+                        return true;
+                    await Task.Delay(500);
+                }
+                return !game.HasExited;
+            }
             Stopwatch clock = Stopwatch.StartNew();
             while (clock.Elapsed < limit)
             {

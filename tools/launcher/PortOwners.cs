@@ -59,6 +59,10 @@ namespace HordesOfAzeroth.Launcher
                 ids.UnionWith(ListenerIds(IPv4, IPv4RowSize, IPv4PortOffset, IPv4PidOffset, port));
                 ids.UnionWith(ListenerIds(IPv6, IPv6RowSize, IPv6PortOffset, IPv6PidOffset, port));
             }
+            else if (Platform.IsMac)
+            {
+                ids.UnionWith(MacListenerIds(port));
+            }
             else
             {
                 ids.UnionWith(LinuxListenerIds(port));
@@ -92,6 +96,39 @@ namespace HordesOfAzeroth.Launcher
             finally
             {
                 Marshal.FreeHGlobal(table);
+            }
+            return ids;
+        }
+
+        static IEnumerable<int> MacListenerIds(int port)
+        {
+            HashSet<int> ids = new HashSet<int>();
+            try
+            {
+                using (Process process = Process.Start(new ProcessStartInfo("lsof")
+                {
+                    ArgumentList = { "-nP", "-iTCP:" + port, "-sTCP:LISTEN" },
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }))
+                {
+                    if (process == null)
+                        return ids;
+                    string line;
+                    while ((line = process.StandardOutput.ReadLine()) != null)
+                    {
+                        string[] fields = line.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+                        if (fields.Length < 2 || fields[0] == "COMMAND")
+                            continue;
+                        if (int.TryParse(fields[1], out int id))
+                            ids.Add(id);
+                    }
+                    process.WaitForExit(2000);
+                }
+            }
+            catch (Exception e) when (e is System.ComponentModel.Win32Exception || e is InvalidOperationException || e is IOException)
+            {
             }
             return ids;
         }
@@ -165,6 +202,30 @@ namespace HordesOfAzeroth.Launcher
 
         static string ImagePath(int processId)
         {
+            if (Platform.IsMac)
+            {
+                try
+                {
+                    using (Process process = Process.Start(new ProcessStartInfo("ps")
+                    {
+                        ArgumentList = { "-o", "comm=", "-p", processId.ToString() },
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                    }))
+                    {
+                        if (process == null)
+                            return null;
+                        string path = process.StandardOutput.ReadToEnd().Trim();
+                        process.WaitForExit(2000);
+                        return path.Length == 0 ? null : path;
+                    }
+                }
+                catch (Exception e) when (e is System.ComponentModel.Win32Exception || e is InvalidOperationException || e is IOException)
+                {
+                    return null;
+                }
+            }
             if (!Platform.IsWindows)
             {
                 try
