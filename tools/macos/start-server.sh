@@ -11,6 +11,7 @@ mkdir -p "$logs"
 if ! "$maria/bin/mariadb" -h127.0.0.1 -P3306 -uroot --skip-ssl -e 'SELECT 1' >/dev/null 2>&1; then
     echo "starting mariadbd"
     nohup "$maria/bin/mariadbd" --defaults-file="$cfg" --basedir="$maria" --datadir="$data" --port=3306 \
+        --socket="$logs/mysql.sock" \
         --pid-file="$logs/mariadb.pid" --log-error="$logs/mariadb.err" >/dev/null 2>&1 &
     for i in $(seq 1 60); do
         "$maria/bin/mariadb" -h127.0.0.1 -P3306 -uroot --skip-ssl -e 'SELECT 1' >/dev/null 2>&1 && break

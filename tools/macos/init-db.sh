@@ -16,12 +16,15 @@ if [ ! -d "$data/mysql" ]; then
     install_db="$maria/scripts/mariadb-install-db"
     [ -x "$install_db" ] || install_db="$maria/bin/mariadb-install-db"
     "$install_db" --defaults-file="$cfg" --basedir="$maria" --datadir="$data" \
+        --socket="$root/server/logs/mysql.sock" \
+        --innodb-buffer-pool-size=128M \
         --auth-root-authentication-method=normal --skip-test-db
 fi
 
 if ! "$maria/bin/mariadb" -h 127.0.0.1 -P "$port" -u root --skip-ssl -e 'SELECT 1' >/dev/null 2>&1; then
     echo "starting mariadbd on $port"
     "$maria/bin/mariadbd" --defaults-file="$cfg" --basedir="$maria" --datadir="$data" --port="$port" \
+        --socket="$root/server/logs/mysql.sock" \
         --pid-file="$root/server/logs/mariadb.pid" \
         --log-error="$root/server/logs/mariadb.err" &
     for i in $(seq 1 60); do

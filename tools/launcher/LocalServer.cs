@@ -91,10 +91,13 @@ namespace HordesOfAzeroth.Launcher
             }
         }
 
+        string DatabaseSocket => Path.Combine(m_folder.ServerLogs, "mysql.sock");
+
         Process StartDatabase() => StartHidden(MariaDbProgram("mariadbd"), m_folder.MariaDb,
             $"\"--defaults-file={Path.Combine(m_folder.Config, "mariadb.ini")}\"",
             $"\"--basedir={m_folder.MariaDb}\"",
             $"\"--datadir={m_folder.MariaDbData}\"",
+            $"\"--socket={DatabaseSocket}\"",
             $"--port={m_databasePort}");
 
         public bool StartedByUs => m_world != null || m_login != null || m_database != null;
@@ -299,9 +302,16 @@ namespace HordesOfAzeroth.Launcher
                 string installDb = Path.Combine(m_folder.MariaDb, "scripts", "mariadb-install-db");
                 if (!File.Exists(installDb))
                     installDb = Path.Combine(m_folder.MariaDb, "bin", "mariadb-install-db");
+                // Cap the bootstrap pool explicitly: a large innodb_buffer_pool_size in
+                // mariadb.ini has SIGKILL'd packaged mariadbd during install-db on macOS.
+                // Keep the Unix socket under our install tree so a second copy (or Homebrew)
+                // holding /tmp/mysql.sock cannot abort bootstrap.
+                Directory.CreateDirectory(m_folder.ServerLogs);
                 await RunToEndAsync(installDb, m_folder.MariaDb, DatabaseCreationLimit,
                     $"\"--defaults-file={FromMariaDb(Path.Combine(m_folder.Config, "mariadb.ini"))}\"",
                     "--basedir=.", $"\"--datadir={FromMariaDb(m_folder.MariaDbData)}\"",
+                    $"\"--socket={FromMariaDb(DatabaseSocket)}\"",
+                    "--innodb-buffer-pool-size=128M",
                     "--auth-root-authentication-method=normal", $"\"--extra-file={FromMariaDb(rootPassword)}\"");
             }
             finally

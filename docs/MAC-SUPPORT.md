@@ -96,6 +96,7 @@ README Mac badge + install, FAQ, `BUILDING.md` Darwin notes, Discord / issue poi
 - `FindMySQL.cmake` gained Homebrew `mariadb` / `mariadb-connector-c` paths.
 - Server **builds and runs** on Darwin: `realmd` :3724 and `mangosd` :8085 came up against imported `packages-v0.6.4` SQL + reused extracted maps from `wow-data`.
 - MariaDB: live Homebrew prefix works; first `pack-mariadb.sh` rsync tree got `mariadbd` SIGKILL on bootstrap — switched packer to `ditto` of the Cellar.
+- **Packaged MariaDB relocatable** (2026-11-09): `install_name_tool` alone invalidated ad-hoc codesign → Apple Silicon `SIGKILL` on `mariadbd`. Packer now bundles `openssl@4` / `pcre2` (/`lz4`/`zstd`) into `lib/`, rewrites to `@loader_path/../lib/…`, and re-signs. Virgin `mariadb-install-db` + start OK. Also: `innodb_buffer_pool_size` 256M (128M during install-db); Unix socket under `server/logs/mysql.sock` so `/tmp/mysql.sock` conflicts (spike/Homebrew) cannot abort startup.
 - `mangosd` exits if stdin hits EOF (no TTY). `tools/macos/start-server.sh` keeps a FIFO open.
 - Account `PLAYER` / `player` (GM 6) inserted with SRP6 verifier matching launcher `CoopAccounts`.
 - Client `ship` binary built (124MB arm64). Launches on Metal, loads GlueXML / world catalogs without `base.MPQ`.
