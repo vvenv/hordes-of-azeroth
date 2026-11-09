@@ -98,4 +98,6 @@ README Mac badge + install, FAQ, `BUILDING.md` Darwin notes, Discord / issue poi
 - MariaDB: live Homebrew prefix works; first `pack-mariadb.sh` rsync tree got `mariadbd` SIGKILL on bootstrap — switched packer to `ditto` of the Cellar.
 - `mangosd` exits if stdin hits EOF (no TTY). `tools/macos/start-server.sh` keeps a FIFO open.
 - Account `PLAYER` / `player` (GM 6) inserted with SRP6 verifier matching launcher `CoopAccounts`.
-- Client `ship` build still in fat-LTO link of `HordesOfAzeroth` at last check.
+- Client `ship` binary built (124MB arm64). Launches on Metal, loads GlueXML / world catalogs without `base.MPQ`.
+- Auth smoke: mangosd `account create PLAYER player` works; client authenticates and reaches realm list (`1 realm published`). Earlier hand-rolled SRP insert was wrong.
+- Remaining for playable: select realm + create hero / enter world; BonkAccount.lua / BonkStats.lua gitignored empties; optional texture glyphs.
