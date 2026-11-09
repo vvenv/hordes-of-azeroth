@@ -48,7 +48,8 @@ namespace HordesOfAzeroth.Launcher
         public bool IsDevelopmentTree => Directory.Exists(Path.Combine(Root, ".git"));
         public bool HasClient => File.Exists(WowExe) && Directory.Exists(Data);
 
-        public string GameExeName => Platform.IsWindows ? "HordesOfAzeroth.exe" : Platform.IsMac ? "HordesOfAzeroth" : "HordesOfAzeroth.x86_64";
+        // Linux/macOS keep a suffix so the binary does not collide with LauncherData (`HordesOfAzeroth/`).
+        public string GameExeName => Platform.IsWindows ? "HordesOfAzeroth.exe" : Platform.IsMac ? "HordesOfAzeroth.arm64" : "HordesOfAzeroth.x86_64";
 
         public string GameExe => Path.Combine(Root, GameExeName);
 

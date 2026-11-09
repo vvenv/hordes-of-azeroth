@@ -5,6 +5,9 @@ client="${HOA_CLIENT:-$root/release/build/macos/client-target/release/HordesOfAz
 if [ ! -x "$client" ]; then
   client="$root/release/build/macos/client/HordesOfAzeroth"
 fi
+if [ ! -x "$client" ]; then
+  client="$root/release/build/macos/dev-install/HordesOfAzeroth.arm64"
+fi
 mkdir -p "$root/Interface/GlueXML" "$root/Logs" "$root/benilla-config/AddOns" "$root/client"
 printf '%s\n' 'BONK_ACCOUNT = "PLAYER";' 'BONK_PASSWORD = "player";' 'HOA_LANGUAGE = "enUS";' > "$root/Interface/GlueXML/BonkAccount.lua"
 printf '%s\n' 'BONK_STATS = nil;' > "$root/Interface/GlueXML/BonkStats.lua"

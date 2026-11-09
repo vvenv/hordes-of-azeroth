@@ -40,7 +40,7 @@
     { "name": "launcher", "os": "macos", "build": "macos-launcher", "changesWith": "tools/launcher/*.*", "files": [{ "from": "release/build/macos/launcher/HoALauncher", "to": "HoALauncher" }] },
     { "name": "client", "os": "windows", "build": "client", "files": [{ "from": "release/build/client/HordesOfAzeroth.exe", "to": "HordesOfAzeroth.exe" }, { "from": "release/build/client/CLIENT-LICENSES.md", "to": "CLIENT-LICENSES.md" }, { "from": "THIRD-PARTY-NOTICES.md" }] },
     { "name": "client", "os": "linux", "build": "linux-client", "files": [{ "from": "release/build/linux/client/HordesOfAzeroth", "to": "HordesOfAzeroth.x86_64" }, { "from": "release/build/client/CLIENT-LICENSES.md", "to": "CLIENT-LICENSES.md" }, { "from": "THIRD-PARTY-NOTICES.md" }] },
-    { "name": "client", "os": "macos", "build": "macos-client", "files": [{ "from": "release/build/macos/client/HordesOfAzeroth", "to": "HordesOfAzeroth" }, { "from": "release/build/client/CLIENT-LICENSES.md", "to": "CLIENT-LICENSES.md" }, { "from": "THIRD-PARTY-NOTICES.md" }] },
+    { "name": "client", "os": "macos", "build": "macos-client", "files": [{ "from": "release/build/macos/client/HordesOfAzeroth", "to": "HordesOfAzeroth.arm64" }, { "from": "release/build/client/CLIENT-LICENSES.md", "to": "CLIENT-LICENSES.md" }, { "from": "THIRD-PARTY-NOTICES.md" }] },
     { "name": "telegraphkit", "os": "windows", "build": "telegraphkit", "changesWith": "tools/telegraphs/*.cs", "files": [{ "from": "release/build/TelegraphKit.exe", "to": "tools/TelegraphKit.exe" }] },
     {
       "name": "server",

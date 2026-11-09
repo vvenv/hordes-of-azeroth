@@ -25,9 +25,9 @@ mkdir -p "$dest" "$dest/server/run" "$dest/server/logs" "$dest/config" \
 ln -sfn "$wow_client/Data" "$dest/Data"
 ln -sfn "$wow_client/WoW.exe" "$dest/WoW.exe"
 
-# Player client + launcher
-cp -f "$build/client/HordesOfAzeroth" "$dest/HordesOfAzeroth"
-chmod +x "$dest/HordesOfAzeroth"
+# Player client + launcher (binary uses .arm64 so it does not collide with HordesOfAzeroth/ data dir)
+cp -f "$build/client/HordesOfAzeroth" "$dest/HordesOfAzeroth.arm64"
+chmod +x "$dest/HordesOfAzeroth.arm64"
 cp -f "$build/launcher/HoALauncher" "$dest/HoALauncher"
 chmod +x "$dest/HoALauncher"
 
@@ -73,6 +73,6 @@ printf '%s\n' 'mac-dev-stage' > "$dest/VERSION"
 
 echo "staged: $dest"
 echo "  launcher: $dest/HoALauncher"
-echo "  client:   $dest/HordesOfAzeroth"
+echo "  client:   $dest/HordesOfAzeroth.arm64"
 echo "  data:     $dest/Data -> $wow_client/Data"
-ls -la "$dest/HoALauncher" "$dest/HordesOfAzeroth" "$dest/server/run/mangosd" "$dest/server/mariadb/bin/mariadbd" | awk '{print $1, $5, $9}'
+ls -la "$dest/HoALauncher" "$dest/HordesOfAzeroth.arm64" "$dest/server/run/mangosd" "$dest/server/mariadb/bin/mariadbd" | awk '{print $1, $5, $9}'
