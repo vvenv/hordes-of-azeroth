@@ -144,6 +144,13 @@
     { "en": "Reward Card Scale", "zh": "奖励卡牌缩放", "anyCase": true },
     { "en": "Party Spell Effects", "zh": "队伍法术特效", "anyCase": true },
     { "en": "Rewritten Fate", "zh": "改写命运" },
-    { "en": "placement range", "zh": "放置距离", "anyCase": true }
+    { "en": "placement range", "zh": "放置距离", "anyCase": true },
+    { "en": "Hardcore", "zh": "硬核", "note": "硬核角色 / 硬核模式; Hardcore Ironman is 硬核铁人" },
+    { "en": "graveyard", "zh": "墓地", "anyCase": true, "note": "the Hardcore graveyard; lay to rest is 安息" },
+    { "en": "Tabard", "zh": "徽章", "anyCase": true, "note": "official 1.12.1 zhCN slot and item name, not 战袍" },
+    { "en": "appearance", "zh": "外观", "anyCase": true },
+    { "en": "outfit", "zh": "套装", "anyCase": true },
+    { "en": "Transmogrifier", "zh": "幻化师" },
+    { "en": "Esmeralda Glimmerstitch", "zh": "艾斯梅拉达·微光针" }
   ]
 }

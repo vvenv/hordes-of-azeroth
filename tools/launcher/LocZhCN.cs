@@ -307,6 +307,16 @@ namespace HordesOfAzeroth.Launcher
             ["Lost the connection to the host. Your progress up to the last few seconds is saved."] = "与房主的连接已断开。你直到最后几秒前的进度都已保存。",
             ["The game's database didn't answer. Is the game running?"] = "游戏的数据库没有响应。游戏是否正在运行？",
             ["Too many wrong passwords for that game. Try again in a few minutes."] = "该游戏的密码错误次数过多。请几分钟后再试。",
+            ["You're still in a co-op game. Leave it first."] = "你仍在一局联机游戏中。请先退出。",
+            ["Your last co-op rewards are still being saved. Try again in a moment."] = "你上一局联机的奖励仍在保存中。请稍后再试。",
+            ["Couldn't reach the host. Try again."] = "无法连接到房主。请重试。",
+            ["Lost connection to the host. Try again."] = "与房主的连接已断开。请重试。",
+            ["The join request expired. Ask again."] = "加入请求已过期。请重新申请。",
+            ["The host ended the game. Your progress is saved."] = "房主结束了游戏。你的进度已保存。",
+            ["Windows didn't let the launcher restart itself. Close the launcher and open it again to finish the update."] = "Windows 不允许启动器自行重启。请关闭启动器并重新打开以完成更新。",
+            ["No data arrived for {0:0} seconds"] = "已有 {0:0} 秒未收到数据",
+            ["Couldn't write {0} ({1})."] = "无法写入 {0}（{1}）。",
+            ["The partly downloaded file didn't match and was started over"] = "已下载的部分文件不匹配，已重新开始下载",
             ["Can't reach the co-op service. Players in your game keep playing, but new players can't find or join it until it's back."] = "无法连接联机服务。你游戏中的玩家可以继续游戏，但在服务恢复之前，新玩家无法找到或加入你的游戏。",
         };
     }
