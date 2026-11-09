@@ -1,34 +1,26 @@
 #!/bin/bash
-# Pack a relocatable MariaDB tree from Homebrew into release/build/macos/mariadb.
+# Pack a relocatable MariaDB tree from the Homebrew Cellar into release/build/macos/mariadb.
+# Copy the real Cellar directory (not the opt symlink tree): rsync of keg-only linked
+# layouts left mariadbd unusable (SIGKILL on bootstrap) in the first spike.
 set -euo pipefail
 
 out="${1:-release/build/macos/mariadb}"
 prefix="$(brew --prefix mariadb)"
+cellar="$(cd "$prefix" && pwd -P)"
 version="$(brew list --versions mariadb | awk '{print $2}')"
 
 rm -rf "$out"
-mkdir -p "$out"/{bin,lib,share,scripts,include}
+mkdir -p "$(dirname "$out")"
+# Full cellar copy keeps relative script paths and dylib ids consistent enough for local smoke.
+# Player releases should still prefer a purpose-built relocatable tarball once signed.
+ditto "$cellar" "$out"
 
-rsync -a "$prefix/bin/" "$out/bin/"
-rsync -a "$prefix/lib/" "$out/lib/" --exclude='*.a' --exclude='pkgconfig' --exclude='plugin/auth_pam*' 
-if [ -d "$prefix/share" ]; then
-    rsync -a "$prefix/share/" "$out/share/"
-fi
-if [ -d "$prefix/scripts" ]; then
-    rsync -a "$prefix/scripts/" "$out/scripts/"
-elif [ -x "$prefix/bin/mariadb-install-db" ]; then
-    mkdir -p "$out/scripts"
-    ln -sf ../bin/mariadb-install-db "$out/scripts/mariadb-install-db"
-fi
-
-# Prefer @loader_path for shipped dylibs referenced by mariadbd.
 if [ -f "$out/bin/mariadbd" ]; then
     install_name_tool -add_rpath "@loader_path/../lib" "$out/bin/mariadbd" 2>/dev/null || true
 fi
 
 cat > "$out/HOA-MARIADB.txt" <<EOF
-Packaged from Homebrew mariadb $version on $(uname -m) $(sw_vers -productVersion)
-Source prefix: $prefix
+Packaged from Homebrew mariadb $version cellar $cellar on $(uname -m) $(sw_vers -productVersion)
 EOF
 
 echo "packed MariaDB $version -> $out"

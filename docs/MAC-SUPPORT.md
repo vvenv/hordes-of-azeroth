@@ -94,3 +94,8 @@ README Mac badge + install, FAQ, `BUILDING.md` Darwin notes, Discord / issue poi
 - Server CMake configures on Darwin with Homebrew MariaDB + OpenSSL.
 - Fix required: `BonkIntegrity.cpp` used Linux `<link.h>` / `dl_iterate_phdr` — gated to `__linux__`; macOS FindCodeRanges is a no-op for now.
 - `FindMySQL.cmake` gained Homebrew `mariadb` / `mariadb-connector-c` paths.
+- Server **builds and runs** on Darwin: `realmd` :3724 and `mangosd` :8085 came up against imported `packages-v0.6.4` SQL + reused extracted maps from `wow-data`.
+- MariaDB: live Homebrew prefix works; first `pack-mariadb.sh` rsync tree got `mariadbd` SIGKILL on bootstrap — switched packer to `ditto` of the Cellar.
+- `mangosd` exits if stdin hits EOF (no TTY). `tools/macos/start-server.sh` keeps a FIFO open.
+- Account `PLAYER` / `player` (GM 6) inserted with SRP6 verifier matching launcher `CoopAccounts`.
+- Client `ship` build still in fat-LTO link of `HordesOfAzeroth` at last check.
