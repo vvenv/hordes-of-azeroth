@@ -11,6 +11,8 @@
 !/.github/
 !/VERSION
 !/CHANGELOG.md
+!/docs/
+!/docs/MAC-SUPPORT.md
 
 # Addons: ours live here. The client writes Blizzard_*/ key files into the
 # same folder on launch; those are game files.
