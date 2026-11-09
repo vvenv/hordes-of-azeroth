@@ -100,4 +100,7 @@ README Mac badge + install, FAQ, `BUILDING.md` Darwin notes, Discord / issue poi
 - Account `PLAYER` / `player` (GM 6) inserted with SRP6 verifier matching launcher `CoopAccounts`.
 - Client `ship` binary built (124MB arm64). Launches on Metal, loads GlueXML / world catalogs without `base.MPQ`.
 - Auth smoke: mangosd `account create PLAYER player` works; client authenticates and reaches realm list (`1 realm published`). Earlier hand-rolled SRP insert was wrong.
-- Remaining for playable: select realm + create hero / enter world; BonkAccount.lua / BonkStats.lua gitignored empties; optional texture glyphs.
+- Auth + realm select OK with `WOW_REALM="Hordes of Azeroth"`; char select shows 0 heroes.
+- Ship profile builds `--no-default-features` so `WOW_RIG` is absent; need a `cargo build --release -p hoa` (default `dev` features) to auto-create a body for enter-world smoke.
+- Glue stubs: write `BonkAccount.lua` / `BonkStats.lua` locally (gitignored). zhCN + enUS `FRIZQT__.TTF` → missing CJK glyphs; smoke with `HOA_LANGUAGE=enUS`.
+- `tools/macos/smoke-client.sh` wraps the unattended env.
