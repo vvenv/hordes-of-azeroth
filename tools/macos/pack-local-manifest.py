@@ -16,6 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "release" / "build" / "macos" / "assets"
 CACHE = ROOT / "release" / "cache" / "packages-v0.6.4"
+LOCAL_WORLD = ROOT / "release" / "build" / "macos" / "packages" / "server" / "sql" / "world.sql"
 # GameVersion.Parse accepts only 2–3 numeric parts (e.g. 0.6.5).
 TAG = "v0.6.5"
 VERSION = "0.6.5"
@@ -189,8 +190,16 @@ def main() -> None:
     config_entries.append((version_file, "VERSION"))
     packages.append(write_zip("config", config_entries))
 
+    # A world dump taken after applying newer world migrations
+    # (mariadb-dump with release.ps1's flags) replaces the cached one, so the
+    # packed mangosd and its world database agree on migrations.
+    if LOCAL_WORLD.is_file():
+        packages.append(write_zip("world-db", [(LOCAL_WORLD, "server/sql/world.sql")]))
+
     # shared SQL packages from cache when available
     for name in ("base-db", "migrations", "world-db"):
+        if name == "world-db" and LOCAL_WORLD.is_file():
+            continue
         cached = CACHE / f"{name}.zip"
         if not cached.is_file():
             raise SystemExit(f"missing {cached}; run tools/macos/smoke-setup.sh first")
