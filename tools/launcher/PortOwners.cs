@@ -35,6 +35,26 @@ namespace HordesOfAzeroth.Launcher
         [DllImport("kernel32.dll")]
         static extern bool CloseHandle(IntPtr handle);
 
+        const int MacPathLimit = 4096;
+
+        [DllImport("libproc.dylib", SetLastError = true)]
+        static extern int proc_pidpath(int processId, byte[] buffer, uint size);
+
+        // ps reports the command as it was typed ("./realmd"), which hides the folder; ask the kernel for the real path.
+        static string MacImagePath(int processId)
+        {
+            try
+            {
+                byte[] buffer = new byte[MacPathLimit];
+                int length = proc_pidpath(processId, buffer, (uint)buffer.Length);
+                return length > 0 ? Encoding.UTF8.GetString(buffer, 0, length) : null;
+            }
+            catch (Exception e) when (e is DllNotFoundException || e is EntryPointNotFoundException)
+            {
+                return null;
+            }
+        }
+
         public sealed class Owner
         {
             public int ProcessId { get; set; }
@@ -204,6 +224,9 @@ namespace HordesOfAzeroth.Launcher
         {
             if (Platform.IsMac)
             {
+                string real = MacImagePath(processId);
+                if (real != null)
+                    return real;
                 try
                 {
                     using (Process process = Process.Start(new ProcessStartInfo("ps")
