@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="GMBOX_TOGGLE" header="GMBOX">
+    GMBox_Toggle()
+  </Binding>
+</Bindings>
