@@ -1,20 +1,19 @@
 # Third-party notices
 
-Hordes of Azeroth is licensed under the GNU General Public License v3.0 (see `LICENSE`). It builds on, ships with or downloads the following projects, each under its own licence.
+This project is licensed under the GNU General Public License v3.0 (see `LICENSE`). It builds on or downloads the following projects, each under its own licence.
 
-Hordes of Azeroth is not affiliated with or endorsed by Blizzard Entertainment. It contains no Blizzard files: the game client is our own build of benilla, which reads the player's own World of Warcraft 1.12.1 data, and the launcher builds everything else it needs from that data on the player's PC.
+It is not affiliated with or endorsed by Blizzard Entertainment and contains no Blizzard files: the game client is a build of benilla, which reads the player's own World of Warcraft 1.12.1 data.
 
 | Project | Used for | Licence | Source |
 | --- | --- | --- | --- |
-| benilla | The game client (our fork: `client`, built as `HordesOfAzeroth.exe`) | MIT OR Apache-2.0 | https://github.com/samwhosung/benilla |
-| Rust crates in the client | Bevy, wgpu, mlua's Lua and the other libraries benilla builds on, compiled into `HordesOfAzeroth.exe`; every crate with its full licence text is listed in `CLIENT-LICENSES.md` next to the game | Each crate's own licence (MIT, Apache-2.0, MPL-2.0, zlib, BSD and similar) | https://crates.io |
-| VMaNGOS | The game server (our fork: `server/core`) | GPL-2.0 | https://github.com/vmangos/core |
-| VMaNGOS world database | The base of the shipped world database (`world-db`), with our changes applied | GPL-2.0 | https://github.com/vmangos/core/releases |
-| MariaDB Server | The local database | GPL-2.0 | https://mariadb.org |
-| Barlow Bold | Health numbers font in the addon (`Interface/AddOns/HordesOfAzeroth/Fonts`, licence in `Barlow-OFL.txt` beside it) | SIL Open Font License 1.1 | https://github.com/jpt/barlow |
-| Microsoft Visual C++ Redistributable | Runtime DLLs next to the server and map tools | Microsoft Software License Terms (redistributable files) | https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist |
+| benilla | The game client (submodule `client`, built as `benilla`) | MIT OR Apache-2.0 | https://github.com/samwhosung/benilla |
+| Rust crates in the client | Bevy, wgpu, mlua's Lua and the other libraries benilla builds on | Each crate's own licence (MIT, Apache-2.0, MPL-2.0, zlib, BSD and similar) | https://crates.io |
+| VMaNGOS | The game server (submodule `server/core`) | GPL-2.0 | https://github.com/vmangos/core |
+| VMaNGOS world database | Downloaded by `tools/macos/setup-classic.sh` from the db_latest release | GPL-2.0 | https://github.com/vmangos/core/releases |
+| MariaDB Server | The local database (Homebrew) | GPL-2.0 | https://mariadb.org |
+| Hordes of Azeroth | The project this one is forked from | GPL-3.0 | https://github.com/jonhaldors/hordes-of-azeroth |
 
-MariaDB is downloaded by the launcher from its own release page. The client and the VMaNGOS-based server are built from our forks' source: [hordes-of-azeroth-client](https://github.com/jonhaldors/hordes-of-azeroth-client) and [hordes-of-azeroth-server](https://github.com/jonhaldors/hordes-of-azeroth-server).
+The third-party 1.12 addons (pfUI, pfQuest, Atlas, AtlasLoot, AtlasQuest, Bagshui, ShaguKill, ShaguNotify, SuperMacro, CleverMacro) are not part of this repository: `tools/macos/install-addons.sh` copies them from the player's own addon folder, and each keeps its own licence.
 
 ## benilla
 

@@ -5,4 +5,4 @@
 [submodule "client"]
 	path = client
 	url = git@github.com:vvenv/hordes-of-azeroth-client.git
-	branch = main
+	branch = classic

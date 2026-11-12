@@ -58,7 +58,7 @@ tools/macos/play.sh                                  # 进游戏
 
 各步骤做了什么：
 
-1. **`build-classic.sh`**：编译服务端（`mangosd`、`realmd`），装到 `release/build/macos/server-classic`；再编译客户端，生成 `release/build/macos/client-target/release/HordesOfAzeroth`。也可以只编一边：`build-classic.sh server` 或 `build-classic.sh client`。
+1. **`build-classic.sh`**：编译服务端（`mangosd`、`realmd`），装到 `release/build/macos/server-classic`；再编译客户端，生成 `release/build/macos/client-target/release/benilla`。也可以只编一边：`build-classic.sh server` 或 `build-classic.sh client`。
 2. **`setup-classic.sh`**：重复运行是安全的，已有的东西不会动。它会：
    - 把服务端程序和地图数据链接进 `server/run`、`server/data`；
    - 初始化并启动 MariaDB（数据在 `server/mariadb-data`）；
@@ -184,5 +184,3 @@ GM 权限读的是 `classic_realmd.account_access` 表，不是 `account.gmlevel
 World of Warcraft 和 Blizzard Entertainment 是 Blizzard Entertainment, Inc. 的商标或注册商标。
 
 本仓库代码使用 [GNU General Public License v3.0](LICENSE)。客户端基于 [benilla](https://github.com/samwhosung/benilla)（MIT 或 Apache-2.0）。服务端基于 [VMaNGOS](https://github.com/vmangos/core)（GPL-2.0）。第三方插件各有各的许可，由安装脚本从你自己的插件文件夹复制，不随仓库分发。其他依赖见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
-
-`BUILDING.md` 和 `CHANGELOG.md` 记录的是原来的幸存者玩法（Windows 启动器版），不适用于 `classic` 分支。

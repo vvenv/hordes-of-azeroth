@@ -3,13 +3,11 @@ name: macOS build
 on:
   workflow_dispatch:
   push:
-    branches: [mac-support, main]
+    branches: [classic]
     paths:
-      - 'client/**'
-      - 'server/core/**'
+      - 'client'
+      - 'server/core'
       - 'tools/macos/**'
-      - 'tools/launcher/**'
-      - 'config/release.json'
       - '.github/workflows/macos-build.yml'
 
 jobs:
@@ -27,33 +25,5 @@ jobs:
           curl -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-
-      - name: Build client and server
-        run: |
-          chmod +x tools/macos/build.sh tools/macos/pack-mariadb.sh
-          tools/macos/build.sh all "$PWD/client" "$PWD/server/core" "$PWD/release/build/macos"
-
-      - name: Publish launcher
-        run: |
-          mkdir -p release/build/macos/launcher
-          dotnet publish tools/launcher/HordesOfAzerothLauncher.csproj -c Release -r osx-arm64 -nologo \
-            -p:Repository=vvenv/hordes-of-azeroth \
-            -o release/build/macos/launcher
-
-      - name: Pack MariaDB
-        run: |
-          tools/macos/pack-mariadb.sh release/build/macos/mariadb
-          tar -C release/build/macos -czf release/build/macos/mariadb.tar.gz mariadb
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: hoa-macos-arm64
-          path: |
-            release/build/macos/client/HordesOfAzeroth
-            release/build/macos/server/**
-            release/build/macos/launcher/HoALauncher
-            release/build/macos/mariadb.tar.gz
+      - name: Build server and client
+        run: tools/macos/build-classic.sh all

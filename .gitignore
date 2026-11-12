@@ -1,53 +1,33 @@
 # Whitelist repo: everything is ignored unless explicitly un-ignored below.
-# Base game files (WoW.exe, Data/*.MPQ, WTF/, WDB/, Logs/, ...) never get tracked.
+# Game data (Data/*.MPQ), builds, databases, logs and the client's own
+# settings (benilla-config/) never get tracked.
 /*
 
 # Repo metadata
 !/.gitignore
+!/.gitmodules
 !/README.md
-!/BUILDING.md
 !/LICENSE
 !/THIRD-PARTY-NOTICES.md
 !/.github/
-!/VERSION
-!/CHANGELOG.md
-!/docs/
-!/docs/MAC-SUPPORT.md
 
-# Addons: ours live here. The client writes Blizzard_*/ key files into the
-# same folder on launch; those are game files.
+# This project's own addons. Third-party addons are installed into
+# benilla-config/AddOns by tools/macos/install-addons.sh, not tracked here.
 !/Interface/
 /Interface/*
 !/Interface/AddOns/
-/Interface/AddOns/Blizzard_*/
-# Disabled test addons (renamed to .off) stay local.
-/Interface/AddOns/*.off/
-# Built from the player's own client art by TelegraphKit (tools/build-telegraphs.ps1).
-/Interface/AddOns/HordesOfAzeroth/Textures/ClassCrests.tga
-/Interface/AddOns/HordesOfAzeroth/Textures/PlayerFrameNoPower.tga
+/Interface/AddOns/*
+!/Interface/AddOns/GMBox/
+!/Interface/AddOns/!Solo/
 
-# Our login and hero screens. BonkAccount.lua holds the local login;
-# mangosd writes BonkStats.lua.
-!/Interface/GlueXML/
-/Interface/GlueXML/BonkAccount.lua
-/Interface/GlueXML/BonkStats.lua
-
-# Local server tooling and settings.
-!/tools/
-/tools/telegraphs/bin/
-/tools/launcher/bin/
-/tools/launcher/obj/
+# Server configuration and the macOS scripts.
 !/config/
-!/play.bat
+!/tools/
+/tools/*
+!/tools/macos/
 
-!/stop.bat
-
-# Translations of the server's text, edited with tools/translate.ps1.
-!/localization/
-
-# Under /server only the VMaNGOS fork (a submodule) is tracked. The build,
-# MariaDB and extracted client data are generated or third-party.
-!/.gitmodules
+# Under /server only the VMaNGOS fork (a submodule) is tracked; the build,
+# MariaDB and the extracted map data are generated or third-party.
 !/server/
 /server/*
 !/server/core
@@ -55,14 +35,7 @@
 # The benilla client fork (a submodule).
 !/client
 
-# To track a new top-level project folder, add a line like:
-# !/addon-src/
-
-tools/bench/results.json
-
 __pycache__/
-tools/clientfix/build/
-
+.DS_Store
 .probe-identity
 client/.probe-identity
-.DS_Store

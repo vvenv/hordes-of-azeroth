@@ -10,7 +10,7 @@ root="$(cd "$(dirname "$0")/../.." && pwd)"
 bash "$root/tools/macos/start-server.sh"
 [ "${1:-}" = "--server-only" ] && exit 0
 
-client="$root/release/build/macos/client-target/release/HordesOfAzeroth"
+client="$root/release/build/macos/client-target/release/benilla"
 [ -x "$client" ] || { echo "no client build: tools/macos/build-classic.sh client" >&2; exit 1; }
 export BENILLA_HOME="$root/benilla-config"
 export WOW_DATA="$root/Data"

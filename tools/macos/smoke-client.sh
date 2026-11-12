@@ -1,13 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
-client="${HOA_CLIENT:-$root/release/build/macos/client-target/release/HordesOfAzeroth}"
-if [ ! -x "$client" ]; then
-  client="$root/release/build/macos/client/HordesOfAzeroth"
-fi
-if [ ! -x "$client" ]; then
-  client="$root/release/build/macos/dev-install/HordesOfAzeroth.arm64"
-fi
+# Unattended client run for probes and screenshots (the dev build's WOW_* probe variables).
+client="${CLIENT_BIN:-$root/release/build/macos/client-target/release/benilla}"
 mkdir -p "$root/Logs" "$root/benilla-config/AddOns" "$root/client"
 # WOW_RIG character names need a checkout identity word.
 if [ ! -f "$root/client/.probe-identity" ]; then

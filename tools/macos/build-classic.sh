@@ -7,8 +7,8 @@
 #         into release/build/macos/server-classic. The configure step runs
 #         every time, because mangosd embeds the list of sql/migrations and a
 #         new migration file needs a fresh configure.
-# client: cargo build of the client (benilla + the hoa crate) into
-#         release/build/macos/client-target/release/HordesOfAzeroth.
+# client: cargo build of the client (benilla) into
+#         release/build/macos/client-target/release/benilla.
 #
 # Needs: Xcode command line tools, Homebrew cmake, mariadb, openssl@3,
 # pkg-config, and Rust (rustup).
@@ -34,13 +34,13 @@ build_server() {
 }
 
 build_client() {
-    echo "== client: cargo build --release -p hoa"
+    echo "== client: cargo build --release -p benilla"
     (
         cd "$root/client"
         WOW_DATA="$root/Data" CARGO_TARGET_DIR="$root/release/build/macos/client-target" \
-            cargo build --release -p hoa
+            cargo build --release -p benilla
     )
-    echo "== client: release/build/macos/client-target/release/HordesOfAzeroth"
+    echo "== client: release/build/macos/client-target/release/benilla"
 }
 
 case "$part" in
