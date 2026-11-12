@@ -1,0 +1,6 @@
+## Interface: 11200
+## Title: Solo
+## Notes: Single-player defaults: no chat channels or social chatter, and pfUI and pfQuest set up for travelling and questing alone.
+## Author: local
+## Version: 1.0.0
+Solo.lua

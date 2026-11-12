@@ -268,12 +268,16 @@ local function Backdrop(f)
   })
 end
 
+-- Every widget the pfUI skin restyles (see SkinWithPfUI).
+local skin = { buttons = {}, checks = {}, edits = {}, rows = {}, on = false }
+
 local btnSeq = 0
 local function Button(parent, w, h, text, point, rel, relPoint, x, y)
   btnSeq = btnSeq + 1
   local b = CreateFrame("Button", "GMBoxButton" .. btnSeq, parent, "UIPanelButtonTemplate")
   b:SetWidth(w) b:SetHeight(h) b:SetText(text)
   b:SetPoint(point, rel, relPoint, x, y)
+  table.insert(skin.buttons, b)
   return b
 end
 
@@ -285,6 +289,15 @@ local function Label(parent, text, font, point, rel, relPoint, x, y)
 end
 
 local Refresh, SetTab, RunSearch
+
+local function MarkCurrent(b, current)
+  if skin.on then
+    b:Enable()
+    if current then b:LockHighlight() else b:UnlockHighlight() end
+  else
+    if current then b:Disable() else b:Enable() end
+  end
+end
 
 -- current entry under a row, as a small record the click handlers understand
 local function RowData(i)
@@ -410,6 +423,7 @@ panel:SetScript("OnMouseWheel", function()
 end)
 
 ui.search = CreateFrame("EditBox", "GMBoxSearch", panel, "InputBoxTemplate")
+table.insert(skin.edits, ui.search)
 ui.search:SetWidth(360) ui.search:SetHeight(20)
 ui.search:SetPoint("TOPLEFT", panel, "TOPLEFT", 46, 0)
 ui.search:SetAutoFocus(false)
@@ -430,12 +444,14 @@ ui.clear:SetScript("OnClick", function()
 end)
 
 ui.favOnly = CreateFrame("CheckButton", "GMBoxFavCheck", panel, "UICheckButtonTemplate")
+table.insert(skin.checks, ui.favOnly)
 ui.favOnly:SetWidth(20) ui.favOnly:SetHeight(20)
 ui.favOnly:SetPoint("LEFT", ui.clear, "RIGHT", 6, 0)
 ui.favOnly:SetScript("OnClick", function() view.fav = this:GetChecked() and true or false RunSearch() end)
 Label(panel, L("fav", "收藏"), "GameFontNormalSmall", "LEFT", ui.favOnly, "RIGHT", 0, 0)
 
 ui.usable = CreateFrame("CheckButton", "GMBoxUsableCheck", panel, "UICheckButtonTemplate")
+table.insert(skin.checks, ui.usable)
 ui.usable:SetWidth(20) ui.usable:SetHeight(20)
 ui.usable:SetPoint("LEFT", ui.favOnly, "RIGHT", 34, 0)
 ui.usable:SetScript("OnClick", function() db.usable = this:GetChecked() and true or false RunSearch() end)
@@ -447,6 +463,7 @@ for i = 1, ROWS do
   if i == 1 then b:SetPoint("TOPLEFT", panel, "TOPLEFT", 2, -26)
   else b:SetPoint("TOPLEFT", rows[i - 1], "BOTTOMLEFT", 0, -1) end
   b:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+  table.insert(skin.rows, b)
   b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
   b.index = i
   b:SetScript("OnClick", RowClick)
@@ -467,6 +484,7 @@ ui.status = Label(panel, "", "GameFontDisableSmall", "BOTTOMLEFT", panel, "BOTTO
 -- footer: item count on the Items tab, coordinate jump on the Teleport tab
 ui.countLabel = Label(panel, L("Count:", "数量:"), "GameFontNormalSmall", "BOTTOMLEFT", panel, "BOTTOMLEFT", 4, 6)
 ui.count = CreateFrame("EditBox", "GMBoxCount", panel, "InputBoxTemplate")
+table.insert(skin.edits, ui.count)
 ui.count:SetWidth(50) ui.count:SetHeight(20)
 ui.count:SetPoint("LEFT", ui.countLabel, "RIGHT", 10, 0)
 ui.count:SetAutoFocus(false)
@@ -492,6 +510,7 @@ for i = 1, 4 do
 end
 
 ui.gox = CreateFrame("EditBox", "GMBoxGoXYZ", panel, "InputBoxTemplate")
+table.insert(skin.edits, ui.gox)
 ui.gox:SetWidth(190) ui.gox:SetHeight(20)
 ui.gox:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 60, 6)
 ui.gox:SetAutoFocus(false)
@@ -584,6 +603,7 @@ for r = 1, table.getn(TOOLROWS) do
 end
 
 local nameBox = CreateFrame("EditBox", "GMBoxName", tools, "InputBoxTemplate")
+table.insert(skin.edits, nameBox)
 nameBox:SetWidth(150) nameBox:SetHeight(20)
 nameBox:SetPoint("TOPLEFT", tools, "TOPLEFT", 96, toolY - 4)
 nameBox:SetAutoFocus(false)
@@ -598,6 +618,7 @@ end)
 
 toolY = toolY - 34
 local rawBox = CreateFrame("EditBox", "GMBoxRaw", tools, "InputBoxTemplate")
+table.insert(skin.edits, rawBox)
 rawBox:SetWidth(360) rawBox:SetHeight(20)
 rawBox:SetPoint("TOPLEFT", tools, "TOPLEFT", 96, toolY)
 rawBox:SetAutoFocus(false)
@@ -702,6 +723,7 @@ for i = 1, table.getn(ROLES) do
 end
 
 dui.auto = CreateFrame("CheckButton", "GMBoxBotsAuto", dung, "UICheckButtonTemplate")
+table.insert(skin.checks, dui.auto)
 dui.auto:SetWidth(22) dui.auto:SetHeight(22)
 dui.auto:SetPoint("TOPLEFT", dung, "TOPLEFT", 340, -1)
 dui.auto:SetScript("OnClick", function()
@@ -736,7 +758,7 @@ local function DungeonRefresh()
     end
   end
   for i = 1, table.getn(ROLES) do
-    if ROLES[i].key == bots.role then dui.roleButtons[i]:Disable() else dui.roleButtons[i]:Enable() end
+    MarkCurrent(dui.roleButtons[i], ROLES[i].key == bots.role)
   end
   dui.auto:SetChecked(bots.auto and 1 or nil)
   if bots.known then
@@ -760,6 +782,7 @@ for i = 1, DROWS do
   if i == 1 then b:SetPoint("TOPLEFT", dung, "TOPLEFT", 2, -74)
   else b:SetPoint("TOPLEFT", dui.rows[i - 1], "BOTTOMLEFT", 0, -1) end
   b:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+  table.insert(skin.rows, b)
   b.text = b:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
   b.text:SetPoint("LEFT", b, "LEFT", 4, 0)
   b.text:SetJustifyH("LEFT")
@@ -1002,7 +1025,7 @@ function SetTab(i)
   if i < 1 or i > NTABS then i = 1 end
   db.tab = i
   for t = 1, NTABS do
-    if t == i then ui.tabs[t]:Disable() else ui.tabs[t]:Enable() end
+    MarkCurrent(ui.tabs[t], t == i)
   end
   panel:Hide() tools:Hide() dung:Hide()
   if i == 4 then
@@ -1047,6 +1070,50 @@ local function Toggle(tab, query)
 end
 
 -- --------------------------------------------------------------- bindings --
+
+-- ------------------------------------------------------------- pfUI skin ---
+-- With pfUI loaded, the window looks like pfUI's own: its flat backdrop and
+-- shadow, its buttons, checkboxes, edit boxes and close button, and the
+-- class colour for the current tab and role. GMBox loads before pfUI
+-- (folders load by name), so this runs at PLAYER_LOGIN.
+
+local function SkinWithPfUI()
+  if skin.on or not (pfUI and pfUI.api and pfUI.api.CreateBackdrop) then return end
+  local api = pfUI.api
+  skin.on = true
+
+  f:SetBackdrop(nil)
+  api.CreateBackdrop(f, nil, nil, .75)
+  if api.CreateBackdropShadow then api.CreateBackdropShadow(f) end
+  api.SkinCloseButton(close, f, -6, -6)
+
+  for i = 1, table.getn(skin.buttons) do api.SkinButton(skin.buttons[i]) end
+  for i = 1, table.getn(skin.checks) do api.SkinCheckbox(skin.checks[i], 14) end
+  for i = 1, table.getn(skin.edits) do
+    local e = skin.edits[i]
+    e:DisableDrawLayer("BACKGROUND")
+    api.CreateBackdrop(e, nil, true)
+    e:SetTextInsets(5, 5, 3, 3)
+  end
+
+  local _, class = UnitClass("player")
+  local c = RAID_CLASS_COLORS[class] or { r = 1, g = 1, b = 1 }
+  for i = 1, table.getn(skin.rows) do
+    skin.rows[i]:SetHighlightTexture("Interface\\Buttons\\WHITE8X8")
+    skin.rows[i]:GetHighlightTexture():SetVertexColor(c.r, c.g, c.b, .2)
+  end
+
+  -- The minimap button gets pfUI's square look on its square minimap.
+  mmBorder:Hide()
+  mmIcon:ClearAllPoints()
+  mmIcon:SetPoint("TOPLEFT", mm, "TOPLEFT", 4, -4)
+  mmIcon:SetPoint("BOTTOMRIGHT", mm, "BOTTOMRIGHT", -4, 4)
+  mmIcon:SetTexCoord(.08, .92, .08, .92)
+  mm:SetWidth(24) mm:SetHeight(24)
+  api.CreateBackdrop(mm, nil, true)
+
+  if f:IsVisible() then SetTab(db.tab) end
+end
 
 mm:SetScript("OnClick", function()
   if arg1 == "RightButton" then
@@ -1174,6 +1241,7 @@ ev:SetScript("OnEvent", function()
   elseif event == "PLAYER_ENTERING_WORLD" then
     if not bots.known then Cmd(".bots status quiet") end
   elseif event == "PLAYER_LOGIN" then
+    SkinWithPfUI()
     if ZH then
       msg("就绪 -- " .. table.getn(GMBox_Tele) .. " 个地点，" ..
           table.getn(GMBox_ItemID) .. " 件物品。/gm 打开，/gm help 看用法。")

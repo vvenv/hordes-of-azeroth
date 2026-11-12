@@ -5,7 +5,8 @@
 - **原版内容**：服务端是原版 [vmangos](https://github.com/vmangos/core)，世界数据、任务、刷怪都是 1.12 原样。
 - **机器人组队**：进入五人副本 3 秒后，队伍自动补满 5 人。缺坦克就补坦克，缺治疗就补治疗，其余补不同职业的输出。bot 和你同级、装备匹配等级，掷骰全部放弃。活着离开副本时 bot 自动解散。
 - **中文**：用简体中文 1.12 客户端的数据，界面、任务、NPC、物品都是中文。
-- **插件**：pfUI、pfQuest、Atlas 三件套、Bagshui 等一套 1.12 插件，以及 GMBox 2.0（副本与机器人面板、传送、物品、GM 工具）。
+- **单人化**：没有聊天频道，聊天框只当消息记录用（系统、拾取、经验、任务和 NPC 说话）。
+- **插件**：pfUI、pfQuest、Atlas 三件套、Bagshui 等一套 1.12 插件，已经按单人旅行做任务配好，不弹首次设置向导。另有 GMBox 2.0（副本与机器人面板、传送、物品、GM 工具），界面和 pfUI 风格一致。
 - **经验 2 倍**，掉落和金钱保持 1 倍。在 `config/mangosd.overrides.conf` 里可以改。
 
 目前只支持 **Apple Silicon 的 Mac**，从源码构建。
@@ -111,6 +112,20 @@ tools/macos/play.sh                                  # 进游戏
 | `.partybot pull` | 坦克 bot 去拉你选中的怪 |
 | `.partybot pause` / `unpause` | 原地待命 / 继续（选中某个 bot 时只对它生效） |
 
+### 单人设置（Solo 插件）
+
+`Interface/AddOns/!Solo` 每次登录都会对每个角色生效：
+
+- **聊天**：不显示说话、喊话、表情、密语、队伍、公会和频道消息，只保留系统、拾取、金钱、经验、声望、技能、任务和 NPC 说话。服务器也拒绝加入任何频道（`Channel.Disable = 1`）。
+- **pfUI**：跳过首次设置向导，新角色用 Modern 布局。另外：
+  - 世界地图显示未探索区域；小地图放大，常显区域名和坐标；任务日志显示等级；
+  - 底部信息栏不显示公会和好友，改为经验、耐久、背包空格；
+  - 升级和拿到史诗装备时自动截图，自动卖灰色物品；
+  - 关掉团队框体、更新检查、密语转发、社交增强、复制聊天和 pfUI 自带背包（背包用 Bagshui）。
+- **pfQuest**：新角色跳过欢迎向导，世界地图显示刷怪点和任务图标，小地图显示刷怪点，打开导航箭头。
+
+想改某一项，就改 `Solo.lua` 里对应的表，再运行 `tools/macos/install-addons.sh`。
+
 ### GMBox 的其他页
 
 - **传送**：服务器上的 997 个传送点，中文、英文、拼音都能搜。也可以用 `/gt 地名`。
@@ -126,6 +141,7 @@ tools/macos/play.sh                                  # 进游戏
 | `server/core` | 服务端（子模块，`classic` 分支）：原版 vmangos 加上 macOS 修复和副本机器人 `src/game/PlayerBots/DungeonBotMgr.*` |
 | `client` | 客户端（子模块）：[benilla](https://github.com/samwhosung/benilla)，用 Rust 从零写的 1.12 客户端 |
 | `Interface/AddOns/GMBox` | GMBox 插件 |
+| `Interface/AddOns/!Solo` | 单人设置插件（名字以 `!` 开头，保证比其他插件先加载） |
 | `config/` | 服务端配置改动（`*.overrides.conf`）和 MariaDB 配置 |
 | `tools/macos/` | 构建、安装、启动脚本 |
 | `benilla-config/` | 客户端设置、插件（`AddOns/`）和插件存档（`saved/`），不进 git |

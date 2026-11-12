@@ -15,9 +15,9 @@ if [ ! -f "$root/client/.probe-identity" ]; then
 fi
 # Unattended runs otherwise use a temp benilla-config, which hides repo AddOns textures.
 export BENILLA_HOME="${BENILLA_HOME:-$root/benilla-config}"
-if [ -d "$root/Interface/AddOns/GMBox" ]; then
-  rsync -a --delete "$root/Interface/AddOns/GMBox/" "$BENILLA_HOME/AddOns/GMBox/"
-fi
+for name in GMBox '!Solo'; do
+  [ -d "$root/Interface/AddOns/$name" ] && rsync -a --delete "$root/Interface/AddOns/$name/" "$BENILLA_HOME/AddOns/$name/"
+done
 export WOW_DATA="${WOW_DATA:-$root/Data}"
 export WOW_HOST="${WOW_HOST:-127.0.0.1}"
 export WOW_USER="${WOW_USER:-PLAYER}"

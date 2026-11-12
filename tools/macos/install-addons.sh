@@ -4,8 +4,8 @@
 #   - the third-party addons vetted in ../wow-data/addons (pfUI, pfQuest,
 #     Atlas, AtlasLoot, AtlasQuest, Bagshui, ShaguKill, ShaguNotify,
 #     SuperMacro, CleverMacro); the client's own Blizzard_* folders are skipped;
-#   - GMBox from this repository (Interface/AddOns/GMBox), which has the
-#     dungeon and bot panel the classic server needs.
+#   - GMBox and !Solo from this repository (Interface/AddOns): the dungeon
+#     and bot panel, and the single-player defaults.
 #
 # The first run also copies their saved settings from the old zhCN client
 # (../wow-data/client-zhCN/WTF/Account/ADMIN/SavedVariables) into
@@ -26,7 +26,7 @@ if [ -d "$src" ]; then
     for dir in "$src"/*/; do
         name="$(basename "$dir")"
         case "$name" in
-            Blizzard_*|GMBox) continue ;;
+            Blizzard_*|GMBox|'!Solo') continue ;;
         esac
         rsync -a --delete "$dir" "$dest/$name/"
         echo "addon $name"
@@ -69,8 +69,12 @@ if t != s:
 PY
 fi
 
-rsync -a --delete "$root/Interface/AddOns/GMBox/" "$dest/GMBox/"
-echo "addon GMBox (repo)"
+# This repository's own addons: GMBox, and !Solo (single-player defaults:
+# no chat chatter, pfUI and pfQuest set up for travelling alone).
+for name in GMBox '!Solo'; do
+    rsync -a --delete "$root/Interface/AddOns/$name/" "$dest/$name/"
+    echo "addon $name (repo)"
+done
 
 if [ -d "$old_saved" ]; then
     for f in "$old_saved"/*.lua; do
