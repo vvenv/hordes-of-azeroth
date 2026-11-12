@@ -58,6 +58,9 @@ migrate classic_world world
     DELETE FROM realmlist;
     INSERT INTO realmlist (id, name, address, port) VALUES (1, 'Azeroth', '127.0.0.1', 8085);
     INSERT IGNORE INTO account (id, username, gmlevel, v, s, expansion, locale)
-        SELECT id, username, gmlevel, v, s, 0, locale FROM realmd.account WHERE username IN ('PLAYER', 'SQUADTEST');"
+        SELECT id, username, gmlevel, v, s, 0, locale FROM realmd.account WHERE username IN ('PLAYER', 'SQUADTEST');
+    -- GM rights live in account_access (per realm); account.gmlevel is not read.
+    REPLACE INTO account_access (id, gmlevel, RealmID)
+        SELECT id, 6, 1 FROM account WHERE username IN ('PLAYER', 'SQUADTEST');"
 
 echo "classic databases ready on 127.0.0.1:$port"

@@ -1,8 +1,8 @@
 ## Interface: 11200
 ## Title: GM Box
-## Notes: Search the realm's teleport points and items, click to go there or add them. VMaNGOS GM commands, one click each.
+## Notes: Teleports, items, dungeons with bot party members, and VMaNGOS GM commands, one click each.
 ## Author: local
-## Version: 1.1.1 (zhCN tele display + search; rebuilt 2026-10-08 after the addons dir was lost)
+## Version: 2.0.0 (dungeons tab with bot party members, minimap button, usable-item filter)
 ## SavedVariables: GMBoxDB
 
 Data_Tele.lua

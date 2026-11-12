@@ -16,7 +16,7 @@ Requires a GM account (this realm: gmlevel 6). Without it the server simply
 refuses each command.
 ----------------------------------------------------------------------------]]
 
-local VERSION = "1.1.1"
+local VERSION = "2.0.0"
 
 -- The realm's world DB carries Simplified Chinese for ~89% of items, so on a
 -- zhCN client the addon searches and shows Chinese names and labels. The 1.12
@@ -101,6 +101,12 @@ local function InitDB()
   if type(db.recentItem) ~= "table"  then db.recentItem = {} end
   if type(db.count)      ~= "number" then db.count = 1 end
   if type(db.tab)        ~= "number" then db.tab = 1 end
+  if type(db.mmAngle)    ~= "number" then db.mmAngle = 200 end
+  if db.version == nil then
+    -- 1.x had three tabs, Tools third; Tools is fourth since Dungeons came in.
+    if db.tab == 3 then db.tab = 4 end
+    db.version = 2
+  end
 end
 
 local function ListFind(t, v)
@@ -163,6 +169,53 @@ end
 
 local function ItemQuality(i)
   return tonumber(string.sub(GMBox_ItemQuality, i, i)) or 1
+end
+
+-- The packed per-item columns (see Data_Items.lua): one char = 0..92, two
+-- chars = 0..8648, from an alphabet of ASCII 32..126 without " and \.
+local function Dec1(str, i)
+  local b = string.byte(str, i)
+  if not b then return 0 end
+  if b > 92 then b = b - 1 end
+  if b > 34 then b = b - 1 end
+  return b - 32
+end
+local function Dec2(str, i) return Dec1(str, 2 * i - 1) * 93 + Dec1(str, 2 * i) end
+local function HasBit(mask, bit) return math.mod(math.floor(mask / bit), 2) == 1 end
+
+local CLASS_ID = { WARRIOR = 1, PALADIN = 2, HUNTER = 3, ROGUE = 4, PRIEST = 5,
+                   SHAMAN = 7, MAGE = 8, WARLOCK = 9, DRUID = 11 }
+local RACE_ID = { Human = 1, Orc = 2, Dwarf = 3, NightElf = 4, Scourge = 5,
+                  Tauren = 6, Gnome = 7, Troll = 8 }
+local ARMOR_RANK = { a = 1, b = 2, c = 3, d = 4 }   -- cloth, leather, mail, plate
+
+-- "Can my character use this": class and race masks, required level, the
+-- heaviest armour the class wears at this level, and shields.
+local me = {}
+local function RefreshMe()
+  local _, cls = UnitClass("player")
+  local _, race = UnitRace("player")
+  me.level = UnitLevel("player") or 1
+  me.classBit = math.pow(2, (CLASS_ID[cls or ""] or 1) - 1)
+  me.raceBit = math.pow(2, (RACE_ID[race or ""] or 1) - 1)
+  local heavy = me.level >= 40
+  if cls == "WARRIOR" or cls == "PALADIN" then me.armor = heavy and 4 or 3
+  elseif cls == "HUNTER" or cls == "SHAMAN" then me.armor = heavy and 3 or 2
+  elseif cls == "ROGUE" or cls == "DRUID" then me.armor = 2
+  else me.armor = 1 end
+  me.shield = (cls == "WARRIOR" or cls == "PALADIN" or cls == "SHAMAN")
+end
+
+local function ItemUsable(i)
+  if not GMBox_ItemReqLvl then return true end
+  if Dec1(GMBox_ItemReqLvl, i) > me.level then return false end
+  if not HasBit(Dec2(GMBox_ItemClass, i), me.classBit) then return false end
+  if not HasBit(Dec2(GMBox_ItemRace, i), me.raceBit) then return false end
+  local kind = string.sub(GMBox_ItemKind, i, i)
+  if kind == "s" then return me.shield end
+  local rank = ARMOR_RANK[kind]
+  if rank and rank > me.armor then return false end
+  return true
 end
 
 -- Rank: earlier match wins, then shorter name -- so "iron" finds "Ironforge"
@@ -315,12 +368,16 @@ local function RowLeave() GameTooltip:Hide() end
 -- ------------------------------------------------------------------ build --
 
 local f = CreateFrame("Frame", "GMBoxFrame", UIParent)
-f:SetWidth(566) f:SetHeight(410)
+f:SetWidth(600) f:SetHeight(440)
 f:SetPoint("CENTER", UIParent, "CENTER", 0, 40)
 Backdrop(f)
 f:SetMovable(true) f:EnableMouse(true) f:RegisterForDrag("LeftButton")
 f:SetScript("OnDragStart", function() this:StartMoving() end)
-f:SetScript("OnDragStop", function() this:StopMovingOrSizing() end)
+f:SetScript("OnDragStop", function()
+  this:StopMovingOrSizing()
+  local point, _, relPoint, x, y = this:GetPoint()
+  db.point = { point, relPoint, x, y }
+end)
 if f.SetClampedToScreen then f:SetClampedToScreen(true) end
 f:Hide()
 tinsert(UISpecialFrames, "GMBoxFrame")   -- Escape closes it
@@ -331,8 +388,9 @@ local close = CreateFrame("Button", "GMBoxClose", f, "UIPanelCloseButton")
 close:SetPoint("TOPRIGHT", f, "TOPRIGHT", -6, -6)
 
 ui.tabs = {}
-local TABS = { L("Teleport", "传送"), L("Items", "物品"), L("Tools", "工具") }
-for i = 1, 3 do
+local TABS = { L("Teleport", "传送"), L("Items", "物品"), L("Dungeons", "副本"), L("Tools", "工具") }
+local NTABS = 4
+for i = 1, NTABS do
   local b = Button(f, 96, 22, TABS[i], "TOPLEFT", f, "TOPLEFT", 16 + (i - 1) * 100, -34)
   b.index = i
   b:SetScript("OnClick", function() SetTab(this.index) end)
@@ -377,9 +435,15 @@ ui.favOnly:SetPoint("LEFT", ui.clear, "RIGHT", 6, 0)
 ui.favOnly:SetScript("OnClick", function() view.fav = this:GetChecked() and true or false RunSearch() end)
 Label(panel, L("fav", "收藏"), "GameFontNormalSmall", "LEFT", ui.favOnly, "RIGHT", 0, 0)
 
+ui.usable = CreateFrame("CheckButton", "GMBoxUsableCheck", panel, "UICheckButtonTemplate")
+ui.usable:SetWidth(20) ui.usable:SetHeight(20)
+ui.usable:SetPoint("LEFT", ui.favOnly, "RIGHT", 34, 0)
+ui.usable:SetScript("OnClick", function() db.usable = this:GetChecked() and true or false RunSearch() end)
+ui.usableLabel = Label(panel, L("usable", "我能用"), "GameFontNormalSmall", "LEFT", ui.usable, "RIGHT", 0, 0)
+
 for i = 1, ROWS do
   local b = CreateFrame("Button", "GMBoxRow" .. i, panel)
-  b:SetWidth(524) b:SetHeight(ROW_H)
+  b:SetWidth(558) b:SetHeight(ROW_H)
   if i == 1 then b:SetPoint("TOPLEFT", panel, "TOPLEFT", 2, -26)
   else b:SetPoint("TOPLEFT", rows[i - 1], "BOTTOMLEFT", 0, -1) end
   b:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
@@ -391,7 +455,7 @@ for i = 1, ROWS do
   b.text = b:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
   b.text:SetPoint("LEFT", b, "LEFT", 4, 0)
   b.text:SetJustifyH("LEFT")
-  b.text:SetWidth(400)
+  b.text:SetWidth(440)
   b.info = b:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
   b.info:SetPoint("RIGHT", b, "RIGHT", -4, 0)
   b.info:SetJustifyH("RIGHT")
@@ -546,6 +610,275 @@ Label(tools, L("Any command", "任意命令"), "GameFontNormalSmall", "RIGHT", r
 Label(tools, L("(leading dot optional, Enter sends)", "(开头的点可省，回车发送)"), "GameFontDisableSmall",
       "TOPLEFT", rawBox, "BOTTOMLEFT", 0, -2)
 
+-- ---------------------------------------------------------- dungeons tab ---
+-- Five-player dungeons with the spot just inside their entrance (the
+-- areatrigger_teleport targets), so one click lands the party inside. The
+-- server fills the party with bots three seconds after a player enters a
+-- five-player dungeon (DungeonBotMgr), and `.bots` sets the player's role.
+
+local DUNGEONS = {
+  -- { english, chinese, min, max, map, x, y, z, o, note }
+  { "Ragefire Chasm",             "怒焰裂谷",           13, 18, 389,     0.8,    -8.2,  -15.5, 4.71 },
+  { "Wailing Caverns",            "哀嚎洞穴",           17, 24,  43,  -158.4,   131.6,  -74.3, 5.85 },
+  { "The Deadmines",              "死亡矿井",           17, 26,  36,   -14.6,  -385.5,   62.5, 1.57 },
+  { "Shadowfang Keep",            "影牙城堡",           22, 30,  33,  -228.2,  2111.4,   76.9, 1.22 },
+  { "Blackfathom Deeps",          "黑暗深渊",           24, 32,  48,  -150.2,   106.6,  -39.8, 4.45 },
+  { "The Stockade",               "暴风城监狱",         24, 32,  34,    49.0,     0.5,  -16.4, 6.28 },
+  { "Scarlet Monastery: Graveyard", "血色修道院：墓地",   26, 36, 189,  1687.3,  1050.1,   18.7, 1.57 },
+  { "Gnomeregan",                 "诺莫瑞根",           29, 38,  90,  -329.1,    -3.2, -152.9, 2.97 },
+  { "Razorfen Kraul",             "剃刀沼泽",           29, 38,  47,  1942.3,  1544.2,   83.3, 1.31 },
+  { "Scarlet Monastery: Library", "血色修道院：图书馆", 29, 39, 189,   253.7,  -206.6,   18.7, 4.71 },
+  { "Scarlet Monastery: Armory",  "血色修道院：军械库", 32, 42, 189,  1608.1,  -318.9,   18.7, 4.71 },
+  { "Scarlet Monastery: Cathedral", "血色修道院：大教堂", 35, 45, 189,   853.2,  1319.2,   18.7, 1.57 },
+  { "Razorfen Downs",             "剃刀高地",           37, 46, 129,  2593.7,  1111.2,   51.0, 4.71 },
+  { "Uldaman",                    "奥达曼",             41, 51,  70,  -228.9,    46.1,  -46.0, 1.57 },
+  { "Zul'Farrak",                 "祖尔法拉克",         42, 54, 209,  1212.7,   842.0,    8.9, 6.28 },
+  { "Maraudon: Orange",           "玛拉顿：橙色入口",   46, 55, 349,  1016.8,  -458.5,  -43.5, 6.28 },
+  { "Maraudon: Purple",           "玛拉顿：紫色入口",   46, 55, 349,   755.1,  -617.7,  -32.9, 1.57 },
+  { "Sunken Temple",              "沉没的神庙",         50, 60, 109,  -315.9,   100.2, -131.8, 3.14 },
+  { "Blackrock Depths",           "黑石深渊",           52, 60, 230,   456.9,    34.1,  -68.1, 4.71 },
+  { "Lower Blackrock Spire",      "黑石塔下层",         55, 60, 229,    78.4,  -226.8,   49.8, 4.71 },
+  { "Dire Maul: East",            "厄运之槌：东",       55, 60, 429,  -203.2,  -323.0,   -2.7, 4.71 },
+  { "Dire Maul: West",            "厄运之槌：西",       57, 60, 429,   -65.7,   159.6,   -3.5, 2.36 },
+  { "Dire Maul: North",           "厄运之槌：北",       57, 60, 429,   254.9,   -19.5,   -2.6, 5.50 },
+  { "Scholomance",                "通灵学院",           58, 60, 289,   190.8,   126.3,  137.2, 6.28 },
+  { "Stratholme: Main Gate",      "斯坦索姆：正门",     58, 60, 329,  3392.9, -3395.0,  143.1, 1.57 },
+  { "Stratholme: Service Gate",   "斯坦索姆：后门",     58, 60, 329,  3590.9, -3643.2,  138.5, 5.50 },
+}
+
+-- What the server last said about this character's bots (`.bots status`).
+local bots = { role = "auto", playing = nil, auto = true, known = false }
+
+local ROLES = {
+  { key = "auto",   en = "Auto",   zh = "自动" },
+  { key = "tank",   en = "Tank",   zh = "坦克" },
+  { key = "healer", en = "Healer", zh = "治疗" },
+  { key = "dps",    en = "DPS",    zh = "输出" },
+}
+local ROLE_ZH = { tank = "坦克", healer = "治疗", ["melee dps"] = "近战输出",
+                  ["ranged dps"] = "远程输出", auto = "自动" }
+
+local function RoleText(r)
+  if not r then return "?" end
+  if ZH then return ROLE_ZH[r] or r end
+  return r
+end
+
+-- Quest-log colours by how the dungeon's range sits against my level.
+local function DungeonColor(d)
+  local lvl = UnitLevel("player") or 1
+  if lvl < d[3] - 2 then return 1, 0.1, 0.1 end        -- red: too low
+  if lvl < d[3] then return 1, 0.5, 0.25 end           -- orange: a stretch
+  if lvl <= d[4] - 3 then return 1, 0.82, 0 end        -- yellow: right
+  if lvl <= d[4] + 2 then return 0.25, 0.75, 0.25 end  -- green: easy
+  return 0.5, 0.5, 0.5                                 -- grey: trivial
+end
+
+local dung = CreateFrame("Frame", nil, f)
+dung:SetPoint("TOPLEFT", f, "TOPLEFT", 16, -62)
+dung:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -16, 16)
+dung:Hide()
+
+local dui = { roleButtons = {}, rows = {}, offset = 0 }
+local DROWS = 13
+
+Label(dung, L("I play", "我的职责"), "GameFontNormalSmall", "TOPLEFT", dung, "TOPLEFT", 2, -6)
+for i = 1, table.getn(ROLES) do
+  local r = ROLES[i]
+  local b = Button(dung, 62, 20, L(r.en, r.zh), "TOPLEFT", dung, "TOPLEFT", 70 + (i - 1) * 66, -2)
+  b.role = r.key
+  b:SetScript("OnClick", function() Cmd(".bots role " .. this.role) end)
+  b:SetScript("OnEnter", function()
+    GameTooltip:SetOwner(this, "ANCHOR_BOTTOM")
+    if this.role == "auto" then
+      GameTooltip:AddLine(L("Guess from class, talents and shield", "按职业、天赋和是否带盾自动判断"))
+    else
+      GameTooltip:AddLine(L("Bots fill the other roles around you", "机器人会补齐你之外的职责"))
+    end
+    GameTooltip:Show()
+  end)
+  b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+  dui.roleButtons[i] = b
+end
+
+dui.auto = CreateFrame("CheckButton", "GMBoxBotsAuto", dung, "UICheckButtonTemplate")
+dui.auto:SetWidth(22) dui.auto:SetHeight(22)
+dui.auto:SetPoint("TOPLEFT", dung, "TOPLEFT", 340, -1)
+dui.auto:SetScript("OnClick", function()
+  Cmd(".bots auto " .. (this:GetChecked() and "on" or "off"))
+end)
+Label(dung, L("Bots join in dungeons", "进副本自动补机器人"), "GameFontNormalSmall", "LEFT", dui.auto, "RIGHT", 0, 0)
+
+dui.status = Label(dung, "", "GameFontHighlightSmall", "TOPLEFT", dung, "TOPLEFT", 2, -32)
+dui.fill = Button(dung, 96, 20, L("Fill party", "补满队伍"), "TOPRIGHT", dung, "TOPRIGHT", -104, -28)
+dui.fill:SetScript("OnClick", function() Cmd(".bots fill") end)
+dui.dismiss = Button(dung, 96, 20, L("Dismiss bots", "解散机器人"), "TOPRIGHT", dung, "TOPRIGHT", -2, -28)
+dui.dismiss:SetScript("OnClick", function() Cmd(".bots dismiss") end)
+
+Label(dung, L("Dungeon (click to go inside)", "副本（点击直接传送进去）"), "GameFontNormalSmall",
+      "TOPLEFT", dung, "TOPLEFT", 2, -58)
+Label(dung, L("Level", "等级"), "GameFontNormalSmall", "TOPRIGHT", dung, "TOPRIGHT", -8, -58)
+
+local function DungeonRefresh()
+  local n = table.getn(DUNGEONS)
+  if dui.offset > n - DROWS then dui.offset = n - DROWS end
+  if dui.offset < 0 then dui.offset = 0 end
+  for i = 1, DROWS do
+    local b, d = dui.rows[i], DUNGEONS[dui.offset + i]
+    if d then
+      b.d = d
+      b.text:SetText(ZH and d[2] or d[1])
+      b.text:SetTextColor(DungeonColor(d))
+      b.info:SetText(d[3] .. "-" .. d[4])
+      b:Show()
+    else
+      b:Hide()
+    end
+  end
+  for i = 1, table.getn(ROLES) do
+    if ROLES[i].key == bots.role then dui.roleButtons[i]:Disable() else dui.roleButtons[i]:Enable() end
+  end
+  dui.auto:SetChecked(bots.auto and 1 or nil)
+  if bots.known then
+    local guessed = (bots.role == "auto") and L(" (guessed)", "（自动判断）") or ""
+    dui.status:SetText(L("You play ", "你是") .. RoleText(bots.playing) .. guessed ..
+      L(". Bots take the other roles.", "，机器人会补齐其余职责。"))
+  else
+    dui.status:SetText(L("Asking the server...", "正在向服务器查询..."))
+  end
+end
+
+local function DungeonGo(d)
+  -- The spot just inside the entrance; the server adds the bots there.
+  Cmd(string.format(".go xyzo %.1f %.1f %.1f %.2f %d", d[6], d[7], d[8], d[9], d[5]))
+  msg("-> " .. (ZH and d[2] or d[1]))
+end
+
+for i = 1, DROWS do
+  local b = CreateFrame("Button", "GMBoxDungeonRow" .. i, dung)
+  b:SetWidth(558) b:SetHeight(ROW_H)
+  if i == 1 then b:SetPoint("TOPLEFT", dung, "TOPLEFT", 2, -74)
+  else b:SetPoint("TOPLEFT", dui.rows[i - 1], "BOTTOMLEFT", 0, -1) end
+  b:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+  b.text = b:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+  b.text:SetPoint("LEFT", b, "LEFT", 4, 0)
+  b.text:SetJustifyH("LEFT")
+  b.text:SetWidth(440)
+  b.info = b:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+  b.info:SetPoint("RIGHT", b, "RIGHT", -4, 0)
+  b.info:SetJustifyH("RIGHT")
+  b:SetScript("OnClick", function() if this.d then DungeonGo(this.d) end end)
+  b:SetScript("OnEnter", function()
+    local d = this.d
+    if not d then return end
+    GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+    GameTooltip:AddLine(ZH and d[2] or d[1])
+    if ZH then GameTooltip:AddLine(d[1], 0.8, 0.8, 0.8) end
+    GameTooltip:AddLine(L("Recommended level ", "推荐等级 ") .. d[3] .. "-" .. d[4], 0.8, 0.8, 0.8)
+    GameTooltip:AddLine(L("Click: teleport inside. Bots join three seconds later.",
+                          "点击传送进副本，3 秒后机器人自动入队。"), 0.4, 0.8, 1)
+    GameTooltip:Show()
+  end)
+  b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+  dui.rows[i] = b
+end
+
+dung:EnableMouseWheel(true)
+dung:SetScript("OnMouseWheel", function()
+  dui.offset = dui.offset + ((arg1 > 0) and -3 or 3)
+  DungeonRefresh()
+end)
+
+-- Orders for the bots in the party (vmangos .partybot commands).
+local BOTCMDS = {
+  { L("Come to me", "到我身边"), ".partybot cometome",
+    L("Every bot runs to you", "所有机器人跑到你身边") },
+  { L("Attack target", "集火目标"), ".partybot attackstart",
+    L("Every bot attacks your target", "所有机器人攻击你的目标") },
+  { L("Stop", "停手"), ".partybot attackstop",
+    L("Every bot stops attacking", "所有机器人停止攻击") },
+  { L("Tank pulls", "坦克拉怪"), ".partybot pull",
+    L("The tank bot pulls your target; damage bots wait 10 s", "坦克机器人去拉你的目标，输出机器人等 10 秒再动手") },
+  { L("Hold", "原地待命"), ".partybot pause",
+    L("Bots stop and wait (target one bot to hold only it)", "机器人原地待命（选中某个机器人则只对它）") },
+  { L("Resume", "继续"), ".partybot unpause",
+    L("Bots act again", "机器人恢复行动") },
+}
+Label(dung, L("Orders", "指挥"), "GameFontNormalSmall", "BOTTOMLEFT", dung, "BOTTOMLEFT", 2, 10)
+for i = 1, table.getn(BOTCMDS) do
+  local c = BOTCMDS[i]
+  local b = Button(dung, 80, 20, c[1], "BOTTOMLEFT", dung, "BOTTOMLEFT", 44 + (i - 1) * 84, 4)
+  b.cmd, b.tip = c[2], c[3]
+  b:SetScript("OnClick", function() Cmd(this.cmd) end)
+  b:SetScript("OnEnter", function()
+    GameTooltip:SetOwner(this, "ANCHOR_TOP")
+    GameTooltip:AddLine(this.tip)
+    GameTooltip:Show()
+  end)
+  b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+end
+
+-- `.bots` answers with a machine line first: "[bots] role=tank playing=tank auto=1".
+-- It feeds the panel and never reaches the chat window.
+local function ParseBotsLine(text)
+  local _, _, role, playing, auto = string.find(text, "^%[bots%] role=(.-) playing=(.-) auto=(%d)")
+  if not role then return false end
+  if role == "melee dps" or role == "ranged dps" then role = "dps" end
+  bots.role, bots.playing, bots.auto, bots.known = role, playing, auto == "1", true
+  if dung:IsVisible() then DungeonRefresh() end
+  return true
+end
+
+local origChatEvent = ChatFrame_OnEvent
+function ChatFrame_OnEvent(event)
+  if event == "CHAT_MSG_SYSTEM" and arg1 and string.find(arg1, "^%[bots%]") then return end
+  return origChatEvent(event)
+end
+
+-- ------------------------------------------------------- minimap button ---
+
+local mm = CreateFrame("Button", "GMBoxMinimapButton", Minimap)
+mm:SetWidth(31) mm:SetHeight(31)
+mm:SetFrameStrata("MEDIUM")
+mm:SetFrameLevel(8)
+mm:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+mm:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+mm:RegisterForDrag("LeftButton")
+local mmIcon = mm:CreateTexture(nil, "BACKGROUND")
+mmIcon:SetTexture("Interface\\Icons\\Ability_Warrior_BattleShout")
+mmIcon:SetWidth(20) mmIcon:SetHeight(20)
+mmIcon:SetPoint("TOPLEFT", mm, "TOPLEFT", 7, -5)
+local mmBorder = mm:CreateTexture(nil, "OVERLAY")
+mmBorder:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+mmBorder:SetWidth(53) mmBorder:SetHeight(53)
+mmBorder:SetPoint("TOPLEFT", mm, "TOPLEFT", 0, 0)
+
+local function PlaceMinimapButton()
+  local a = math.rad(db and db.mmAngle or 200)
+  mm:ClearAllPoints()
+  mm:SetPoint("CENTER", Minimap, "CENTER", 80 * math.cos(a), 80 * math.sin(a))
+end
+
+mm:SetScript("OnDragStart", function()
+  this:SetScript("OnUpdate", function()
+    local mx, my = Minimap:GetCenter()
+    local px, py = GetCursorPosition()
+    local scale = Minimap:GetEffectiveScale()
+    db.mmAngle = math.deg(math.atan2(py / scale - my, px / scale - mx))
+    PlaceMinimapButton()
+  end)
+end)
+mm:SetScript("OnDragStop", function() this:SetScript("OnUpdate", nil) end)
+mm:SetScript("OnEnter", function()
+  GameTooltip:SetOwner(this, "ANCHOR_LEFT")
+  GameTooltip:AddLine("GM Box")
+  GameTooltip:AddLine(L("Left click: open or close", "左键：打开/关闭"), 0.8, 0.8, 0.8)
+  GameTooltip:AddLine(L("Right click: dungeons and bots", "右键：副本与机器人"), 0.8, 0.8, 0.8)
+  GameTooltip:AddLine(L("Drag: move around the minimap", "拖动：沿小地图移动"), 0.8, 0.8, 0.8)
+  GameTooltip:Show()
+end)
+mm:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
 -- ------------------------------------------------------------ list logic ---
 
 local function BaseList()
@@ -636,8 +969,20 @@ function RunSearch()
     if id and itemById[id] then
       view.results = { itemById[id] }
     else
-      view.results = Search(itemLower, itemZH, q, MAX_HITS)
+      view.results = Search(itemLower, itemZH, q, db.usable and 20000 or MAX_HITS)
     end
+  end
+  if view.mode == "item" and db.usable then
+    RefreshMe()
+    local keep = {}
+    for i = 1, table.getn(view.results) do
+      local idx = view.results[i]
+      if ItemUsable(idx) then
+        table.insert(keep, idx)
+        if table.getn(keep) >= MAX_HITS then break end
+      end
+    end
+    view.results = keep
   end
   if view.fav then
     local keep = {}
@@ -654,26 +999,35 @@ function RunSearch()
 end
 
 function SetTab(i)
+  if i < 1 or i > NTABS then i = 1 end
   db.tab = i
-  for t = 1, 3 do
+  for t = 1, NTABS do
     if t == i then ui.tabs[t]:Disable() else ui.tabs[t]:Enable() end
   end
-  if i == 3 then
-    panel:Hide()
+  panel:Hide() tools:Hide() dung:Hide()
+  if i == 4 then
     tools:Show()
     return
   end
-  tools:Hide()
+  if i == 3 then
+    dung:Show()
+    DungeonRefresh()
+    Cmd(".bots status quiet")
+    return
+  end
   panel:Show()
   view.mode = (i == 1) and "tele" or "item"
   local item = (i == 2)
   if item then
     ui.countLabel:Show() ui.count:Show()
+    ui.usable:Show() ui.usableLabel:Show()
+    ui.usable:SetChecked(db.usable and 1 or nil)
     for k = 1, 4 do ui.quick[k]:Show() end
     ui.gox:Hide() ui.goxLabel:Hide() ui.recall:Hide() ui.gps:Hide()
     ui.count:SetText(db.count)
   else
     ui.countLabel:Hide() ui.count:Hide()
+    ui.usable:Hide() ui.usableLabel:Hide()
     for k = 1, 4 do ui.quick[k]:Hide() end
     ui.gox:Show() ui.goxLabel:Show() ui.recall:Show() ui.gps:Show()
   end
@@ -684,6 +1038,7 @@ local function Toggle(tab, query)
   if tab then db.tab = tab end
   if not f:IsVisible() then f:Show() elseif not query and not tab then f:Hide() return end
   SetTab(db.tab)
+  if db.tab > 2 then return end
   if query then
     ui.search:SetText(query)
     ui.search:SetFocus()
@@ -692,6 +1047,14 @@ local function Toggle(tab, query)
 end
 
 -- --------------------------------------------------------------- bindings --
+
+mm:SetScript("OnClick", function()
+  if arg1 == "RightButton" then
+    if f:IsVisible() and db.tab == 3 then f:Hide() else Toggle(3) end
+  else
+    Toggle()
+  end
+end)
 
 BINDING_HEADER_GMBOX = "GM Box"
 BINDING_NAME_GMBOX_TOGGLE = "Toggle GM Box"
@@ -702,14 +1065,16 @@ function GMBox_Toggle() Toggle() end
 local function Help()
   if ZH then
     msg("命令:")
-    msg("  /gm            开关窗口")
+    msg("  /gm            开关窗口（小地图上也有按钮）")
+    msg("  /gd            副本与机器人队友")
     msg("  /gt <文字>     传送: 唯一匹配直接过去，多个就开列表")
     msg("  /gi <文字|id> [数量]   物品: 同上，唯一匹配直接进包（中英文名都能搜）")
     msg("列表里: 左键执行，右键收藏，")
     msg("对地点 shift+左键 = 用 .go xyz 而不是 .tele")
   else
     msg("commands:")
-    msg("  /gm            open or close the window")
+    msg("  /gm            open or close the window (or the minimap button)")
+    msg("  /gd            dungeons and bot party members")
     msg("  /gt <text>     teleport: one match goes instantly, otherwise the list opens")
     msg("  /gi <text|id> [count]   item: same idea, adds it straight to your bags")
     msg("in the list: left click = do it, right click = favourite,")
@@ -722,8 +1087,12 @@ SLASH_GMBOX2 = "/gmbox"
 SlashCmdList["GMBOX"] = function(a)
   a = a or ""
   if a == "help" or a == "?" then Help() return end
+  if a == "dungeon" or a == "dungeons" or a == "bots" or a == "fb" then Toggle(3) return end
   if a ~= "" then Toggle(nil, a) else Toggle() end
 end
+
+SLASH_GMBOXDUNGEON1 = "/gd"
+SlashCmdList["GMBOXDUNGEON"] = function() Toggle(3) end
 
 SLASH_GMBOXTELE1 = "/gt"
 SlashCmdList["GMBOXTELE"] = function(a)
@@ -788,12 +1157,22 @@ end
 local ev = CreateFrame("Frame")
 ev:RegisterEvent("VARIABLES_LOADED")
 ev:RegisterEvent("PLAYER_LOGIN")
+ev:RegisterEvent("PLAYER_ENTERING_WORLD")
+ev:RegisterEvent("CHAT_MSG_SYSTEM")
 ev:SetScript("OnEvent", function()
   if event == "VARIABLES_LOADED" then
     InitDB()
     ui.count:SetText(db.count)
-    SetTab(db.tab)
+    if db.point then
+      f:ClearAllPoints()
+      f:SetPoint(db.point[1], UIParent, db.point[2], db.point[3], db.point[4])
+    end
+    PlaceMinimapButton()
     f:Hide()
+  elseif event == "CHAT_MSG_SYSTEM" then
+    ParseBotsLine(arg1 or "")
+  elseif event == "PLAYER_ENTERING_WORLD" then
+    if not bots.known then Cmd(".bots status quiet") end
   elseif event == "PLAYER_LOGIN" then
     if ZH then
       msg("就绪 -- " .. table.getn(GMBox_Tele) .. " 个地点，" ..
