@@ -1,7 +1,7 @@
 [submodule "server/core"]
 	path = server/core
 	url = git@github.com:vvenv/hordes-of-azeroth-server.git
-	branch = vanilla-bonk
+	branch = classic
 [submodule "client"]
 	path = client
 	url = git@github.com:vvenv/hordes-of-azeroth-client.git

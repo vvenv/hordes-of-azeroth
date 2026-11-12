@@ -1,3 +1,5 @@
+> **classic 分支请看 [README](README.md)**：这份文档写的是原来的幸存者玩法（Windows 启动器版）的构建流程，不适用于经典模式。
+
 # Building and working on Hordes of Azeroth
 
 This file is for people who want to build Hordes of Azeroth from source or work on it. To play, see the [README](README.md).

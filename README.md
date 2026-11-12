@@ -1,230 +1,172 @@
-<p align="center">
-  <img src=".github/images/banner.jpg" alt="Hordes of Azeroth" width="100%">
-</p>
+# Azeroth（经典单机版）
 
-<h1 align="center">Hordes of Azeroth</h1>
+一个在自己电脑上跑的魔兽世界 1.12.1 经典版：做任务、升级、探索，五人副本里自动有机器人队友补满队伍。
 
-<p align="center">
-  <b>A survivors-style game mode for World of Warcraft 1.12.1.</b><br>
-  An endless horde, spells that fire on their own and a choice at every level up.<br>
-  Play alone or with up to 3 friends in co-op, on a server that runs on your own PC.
-</p>
+- **原版内容**：服务端是原版 [vmangos](https://github.com/vmangos/core)，世界数据、任务、刷怪都是 1.12 原样。
+- **机器人组队**：进入五人副本 3 秒后，队伍自动补满 5 人。缺坦克就补坦克，缺治疗就补治疗，其余补不同职业的输出。bot 和你同级、装备匹配等级，掷骰全部放弃。活着离开副本时 bot 自动解散。
+- **中文**：用简体中文 1.12 客户端的数据，界面、任务、NPC、物品都是中文。
+- **插件**：pfUI、pfQuest、Atlas 三件套、Bagshui 等一套 1.12 插件，以及 GMBox 2.0（副本与机器人面板、传送、物品、GM 工具）。
+- **经验 2 倍**，掉落和金钱保持 1 倍。在 `config/mangosd.overrides.conf` 里可以改。
 
-<p align="center">
-  <a href="https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher.exe"><img src="https://img.shields.io/badge/Download-Windows-0078D4?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Download for Windows"></a>
-  <a href="https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher-linux.tar.gz"><img src="https://img.shields.io/badge/Download-Linux_%2F_Steam_Deck-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Download for Linux and Steam Deck"></a>
-  <a href="https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher-macos.tar.gz"><img src="https://img.shields.io/badge/Download-macOS_(Apple_Silicon)-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS"></a>
-  <a href="https://github.com/jonhaldors/hordes-of-azeroth/releases/latest"><img src="https://img.shields.io/github/v/release/jonhaldors/hordes-of-azeroth?label=latest&color=3a8a4a&style=for-the-badge" alt="Latest version"></a>
-  <a href="https://discord.gg/zpYfsqh6Dn"><img src="https://img.shields.io/badge/Discord-Join_us-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join the Discord"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-GPL--3.0-4a3a36?style=for-the-badge" alt="Licence: GPL-3.0"></a>
-</p>
+目前只支持 **Apple Silicon 的 Mac**，从源码构建。
 
-> [!WARNING]
-> **Official downloads come only from this GitHub repository's [Releases](https://github.com/jonhaldors/hordes-of-azeroth/releases) page.**
-> The website hordes-of-azeroth.com is not run by me, and I have no connection to it, even though it links here and to the Discord.
-> Hordes of Azeroth does not provide, host or link the World of Warcraft client. You need your own copy of the 1.12.1 client.
-> If any site offers you the client or a launcher download from somewhere other than this page, don't use it.
-
-<p align="center">
-  <a href="#getting-started">Getting started</a> ·
-  <a href="#features">Features</a> ·
-  <a href="#questions">Questions</a> ·
-  <a href="https://discord.gg/zpYfsqh6Dn">Discord</a> ·
-  <a href="#for-developers">For developers</a> ·
-  <a href="https://github.com/jonhaldors/hordes-of-azeroth/issues">Report a bug</a>
-</p>
-
-<br>
-
-<p align="center"><i>Gameplay from version 0.1. The game has changed a lot since.</i></p>
-
-https://github.com/user-attachments/assets/3a82f020-7192-48dc-b6be-f6316bda0225
-
-<br>
-
-## Getting started
-
-### What you need
-
-- Your own copy of **World of Warcraft 1.12.1, build 5875, English (enUS)**. Hordes of Azeroth doesn't include the game.
-- A copy of that client used only for Hordes of Azeroth. The launcher adds its own files to the folder, so don't use your folder for other servers.
-- Windows 10 or 11 (64-bit), Linux and Steam Deck (beta), or macOS on Apple Silicon (beta). About 3 GB of free space next to the game, and up-to-date graphics drivers.
-
-### Install
-
-1. Download **[HoALauncher.exe](https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher.exe)** for Windows, or **[HoALauncher-linux.tar.gz](https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher-linux.tar.gz)** for Linux and Steam Deck, or **[HoALauncher-macos.tar.gz](https://github.com/jonhaldors/hordes-of-azeroth/releases/latest/download/HoALauncher-macos.tar.gz)** for a Mac with Apple Silicon.
-2. Put it in your World of Warcraft folder, next to `WoW.exe`. On Linux and Mac, unpack it there.
-3. Start it and press **Install**. The first install takes a few minutes.
-4. Press **Play**.
-
-From then on, always start the game with the launcher. It starts the server, then the game, and stops the server when you close the game. On Steam Deck, add `HoALauncher` to Steam as a non-Steam game.
-
-On Mac, the launcher isn't signed by Apple yet, so macOS blocks it the first time. Open Terminal in your World of Warcraft folder and run `xattr -dr com.apple.quarantine HoALauncher`, then start it with `./HoALauncher` or by double-clicking it. If macOS still says it can't be opened, allow it under **System Settings → Privacy & Security**.
-
-<p align="center">
-  <img src=".github/images/launcher.jpg" width="720" alt="The launcher during the first install">
-</p>
-
-### Updates
-
-Updates come through the launcher. When a new version is out, **Play** turns into **Update**, and the patch notes show what changed. Your characters are backed up first, and everything you've unlocked stays. You don't have to download the launcher again.
-
-> [!NOTE]
-> Windows may show "Windows protected your PC" the first time, because the launcher is new and not signed yet. Click **More info**, then **Run anyway**. The full source is in this repository if you'd rather check it or build it yourself.
-
-<br>
+> 这个仓库 fork 自 [Hordes of Azeroth](https://github.com/jonhaldors/hordes-of-azeroth)（幸存者玩法）。`classic` 分支去掉了幸存者（Bonk）和放置抽卡（Squad）玩法，改回经典模式；原来的玩法保留在 `main` 和 `squad` 分支。
 
 ---
 
-## Features
+## 需要准备
 
-- **Runs across Azeroth's zones** on Normal, Heroic and Mythic, with more zones on the way.
-- **Mythic levels** with no cap: each level is harder than the last, with personal bests for every level.
-- **An endless finale**: after the last stage, keep fighting with the clock running for as long as you last.
-- **Challenge mode** inside raids, or **Invasions** that bring their enemies into the open world.
-- **Co-op** for up to 4 players, hosted on a player's own PC.
-- **Seasonal leaderboards** for solo and 2, 3 and 4 player runs.
-- **All nine classes**, each with their own spells and evolutions.
-- **Bosses you can outplay**: see their attacks coming and dodge them.
-- **Dash** out of danger: making you untouchable for a moment. Rebind it in Key Bindings, and upgrade its range and cooldown at the Inn.
-- **Find gear, Darkmoon Cards and Glyphs**. Gear grows with the run's level and comes in collectible looks, with epics styled after the classic raids.
-- **Durgan** sells and upgrades gear that keeps pace with your best clear.
-- **An Inn** with account-wide gold, upgrades, fortunes and class talent trees.
-- **Controller support** for Xbox, PlayStation and Steam Deck, switching to and from mouse and keyboard automatically.
-- **And a lot more to come.**
+| 东西 | 说明 |
+|---|---|
+| Mac | Apple Silicon（M 系列芯片）。目前在 macOS 26 上测试过 |
+| 开发工具 | Xcode 命令行工具：`xcode-select --install` |
+| Homebrew 包 | `brew install cmake mariadb openssl@3 pkg-config` |
+| Rust | 用 [rustup](https://rustup.rs) 安装 |
+| 1.12.1 客户端 | build 5875 的 `Data` 文件夹。推荐简体中文版（zhCN），英文版（enUS）也可以 |
+| 服务端地图数据 | vmangos 提取工具从 1.12 客户端提取的 `maps`、`vmaps`、`mmaps` 和 `5875/dbc` |
+| 插件（可选） | 第三方 1.12 插件所在的文件夹 |
 
-<br>
+默认这些游戏数据都放在仓库**旁边**的 `../wow-data` 里：
 
----
+```
+../wow-data/
+├── client-zhCN/Data/        中文客户端的 MPQ（CLIENT_LOCALE=enUS 时用 client/Data）
+├── vmangos-deploy/storage/mangosd/extracted-data/
+│   ├── maps/  vmaps/  mmaps/  5875/
+└── addons/                  第三方插件（pfUI、pfQuest、Atlas……）
+```
 
-## Questions
+放在别处的话，运行安装脚本时用环境变量指过去：`WOW_DATA_ROOT`（整个文件夹）、`CLIENT_LOCALE`（`zhCN` 或 `enUS`）、`HOA_EXTRACTED`（提取好的地图数据）、`ADDONS_SRC`（插件文件夹）。
 
-<details>
-<summary><b>What are the monster paths the launcher sets up?</b></summary>
-<br>
-In World of Warcraft, the server decides where monsters walk, not the game on your PC. Your client only has the shape of the world, so the launcher turns that into walking maps (navigation meshes) for every zone the game uses. That's the slow part.
-<br><br>
-The game mode uses those maps for two things. The mobs chase you around trees, up ramps and through doorways instead of walking through walls. And every monster spawns on a spot it can actually reach you from: never inside a rock or a tree, on a rooftop, or across a river or cliff.
-<br><br>
-The launcher downloads them ready-made with the game. If the download doesn’t work, it builds them from your own game files instead. That keeps your processor busy for a while, and it asks first whether to use all of your cores or half. The Inn and the Normal zones come first, so you can play while the rest finishes in the background.
-</details>
-
-<details>
-<summary><b>Does it change my World of Warcraft?</b></summary>
-<br>
-<code>WoW.exe</code> stays as it is. Hordes of Azeroth runs on its own game client, which reads the models, maps and sounds from your 1.12.1 game files. The launcher adds its own files next to them: the client, the server, an addon and a spell effects patch. That's why it wants a copy of the game of its own.
-</details>
-
-<details>
-<summary><b>Can I play with friends?</b></summary>
-<br>
-Yes. In co-op, up to 4 players play a run together. One player hosts from the character screen, and the others find the game in the browser or join with its code. Your own character, gold, gear and progress come along, and what you earn comes home with you.
-<br><br>
-Co-op is self-hosted: the host's PC runs the game and everyone else connects straight to it. There is no central game server. The lobby only lists games and passes on join requests, and none of your game traffic goes through it.
-<br><br>
-If other players can't reach you when you host, the launchers try to connect through your routers on their own. If that doesn't work either, players on your own network can still join, or you can forward TCP port 3725 on your router to your PC, or use ZeroTier or Tailscale and enter that address as the Public Address when you host.
-<br><br>
-Solo play needs no internet once the game is installed; the launcher just can't check for updates until you're back online.
-</details>
-
-<details>
-<summary><b>The game is too easy/hard</b></summary>
-<br>
-The game is currently in early development, balancing will happen over time. Some classes will be stronger or weaker than others, but updates happen regularly. If you'd like to see something changed, make a suggestion on <a href="https://discord.gg/zpYfsqh6Dn">Discord</a>.
-</details>
-
-<details>
-<summary><b>Where are my characters, and what if an update goes wrong?</b></summary>
-<br>
-They're in the local database inside the game folder. Before every update the launcher saves a backup in <code>HordesOfAzeroth\backups</code> and keeps the three newest.
-</details>
-
-<details>
-<summary><b>My antivirus flags the launcher.</b></summary>
-<br>
-New, unsigned programs that download files and start other programs sometimes get flagged by mistake. Every release lists the launcher's SHA-256 checksum, so you can check that yours is the real one (in PowerShell: <code>Get-FileHash HoALauncher.exe</code>). If it happens, please <a href="https://github.com/jonhaldors/hordes-of-azeroth/issues">open an issue</a>.
-</details>
-
-<details>
-<summary><b>Windows Firewall asks whether to allow access.</b></summary>
-<br>
-Hordes of Azeroth runs its own small game server on your PC (a database, a login server and a world server), and the game connects to it. The server itself only accepts connections from your own computer.
-<br><br>
-When you host a co-op game, the launcher opens one port (TCP 3725) so other players can join, and only players you accepted get through it. Allow access if you want to host co-op. For solo play and joining other games you can choose either answer.
-<br><br>
-The launcher goes online to check GitHub for updates and download them, the same as opening a web page.
-</details>
-
-<details>
-<summary><b>What does the launcher send?</b></summary>
-<br>
-Only what you agree to. The launcher asks once whether to send your finished runs (class, spells, gear, damage, how far you got, and your game version and operating system) to help balance the classes. You can turn it off in the launcher's menu at any time. When you report a bug, it can also upload your logs and give you a reference to post with your report.
-</details>
-
-<details>
-<summary><b>How do I uninstall it?</b></summary>
-<br>
-Close the launcher (also from the tray) and delete the game folder. Hordes of Azeroth keeps nothing anywhere else except a small font cache in <code>%LOCALAPPDATA%\HordesOfAzeroth</code>.
-</details>
-
-<details>
-<summary><b>Can I play with a controller?</b></summary>
-<br>
-Yes. Plug in an Xbox or PlayStation controller and play. Button prompts switch to your controller or your keyboard keys, depending on which one you last used. Settings are under Key Bindings.
-</details>
-
-<details>
-<summary><b>Can I use my own addons?</b></summary>
-<br>
-Yes. Addons go in <code>benilla-config\AddOns</code> inside the game folder, not in <code>Interface\AddOns</code>. In the launcher, click the <b>···</b> button next to Play, then <b>Open AddOns folder</b>. Put each addon there in its own folder. The client is new, so not every 1.12 addon works yet, and addons that change the unit frames or action bars may clash with the game's own interface.
-</details>
-
-<details>
-<summary><b>Can I use HD model or texture packs?</b></summary>
-<br>
-Packs that come as <code>patch-?.MPQ</code> files go in the game's <code>Data</code> folder, the same as for 1.12.1. Name them <code>patch-4.MPQ</code> to <code>patch-9.MPQ</code> or <code>patch-A.MPQ</code> to <code>patch-Y.MPQ</code>. <code>patch-z.MPQ</code> is the game's own. The launcher rebuilds the game's spell effects on top of your packs the next time you press Play. They are untested, and packs made for modified clients may not show.
-</details>
-
-<details>
-<summary><b>Does it run on Mac or Linux?</b></summary>
-<br>
-Linux, Steam Deck and Macs with Apple Silicon (M1 or later) are supported in beta, see <a href="#install">Install</a>. Intel Macs aren't supported.
-</details>
-
-<br>
+还没有提取好的地图数据的话，用 vmangos 自带的提取工具从 1.12 客户端生成：构建时加 `-DBUILD_EXTRACTORS=1`，用法见 [vmangos](https://github.com/vmangos/core) 的文档。
 
 ---
 
-## Community, bugs and ideas
+## 第一次安装
 
-Come hang out on the **[Discord](https://discord.gg/zpYfsqh6Dn)**: get help with installing, report bugs, share your best runs, and tell us what you’d like to see added.
+```sh
+git clone --recurse-submodules -b classic git@github.com:vvenv/hordes-of-azeroth.git
+cd hordes-of-azeroth
 
-Found a bug? Post it in the Discord's `#bug-reports`, or open an issue on the [issue tracker](https://github.com/jonhaldors/hordes-of-azeroth/issues). The launcher's **Report a bug** link saves a zip of your logs on the desktop and opens the tracker; attach the zip to your report or post. The ⋯ menu has **Save logs to the desktop** on its own, for Discord.
+tools/macos/build-classic.sh                         # 编译服务端和客户端（第一次要编译一阵子）
+tools/macos/setup-classic.sh                         # 数据库、配置、客户端数据、插件
+tools/macos/play.sh --server-only                    # 先把服务器开起来
+tools/macos/create-account.sh 账号 密码 gm           # 建账号；gm 表示给 GM 权限
+tools/macos/play.sh                                  # 进游戏
+```
 
-<br>
+各步骤做了什么：
+
+1. **`build-classic.sh`**：编译服务端（`mangosd`、`realmd`），装到 `release/build/macos/server-classic`；再编译客户端，生成 `release/build/macos/client-target/release/HordesOfAzeroth`。也可以只编一边：`build-classic.sh server` 或 `build-classic.sh client`。
+2. **`setup-classic.sh`**：重复运行是安全的，已有的东西不会动。它会：
+   - 把服务端程序和地图数据链接进 `server/run`、`server/data`；
+   - 初始化并启动 MariaDB（数据在 `server/mariadb-data`）；
+   - 第一次运行时，下载 vmangos 官方世界数据库快照（约 30 MB），建四个库：`classic_world`、`classic_characters`、`classic_realmd`、`classic_logs`；以后再运行只补新的数据库迁移；
+   - 生成服务端配置，把 `Data/` 链接到客户端的 MPQ；
+   - 设置客户端（服务器名 Azeroth，不限插件脚本内存），安装插件。
+
+   加 `--reset-db` 会清空重建这四个库，**角色也会被清掉**。
+3. **`create-account.sh`**：需要服务器在运行。加 `gm` 的账号才能用 GMBox 的传送、物品和工具按钮；机器人组队不需要 GM。
+
+## 日常使用
+
+| 做什么 | 命令 |
+|---|---|
+| 开始玩 | `tools/macos/play.sh`（服务器没开会先开） |
+| 只开服务器 | `tools/macos/play.sh --server-only` |
+| 关服务器 | `tools/macos/stop-server.sh`（加 `--all` 连 MariaDB 一起关） |
+| 拉代码后重新编译 | `tools/macos/build-classic.sh`，再 `tools/macos/setup-classic.sh`（补数据库迁移） |
+| 改了服务端设置 | 改 `config/mangosd.overrides.conf`，然后运行 `tools/macos/apply-config.sh`，重启服务器 |
+| 更新插件 | `tools/macos/install-addons.sh`，然后**完全重启**客户端（`/reload` 不会加载新插件） |
+
+关掉客户端后服务器会继续运行。服务器的输出在 `server/logs/mangosd.out`。
 
 ---
 
-## For developers
+## 游戏里
 
-Hordes of Azeroth is open source. Everything you need to build it, run your own development copy and make changes is in the developer guide.
+### 机器人队友
 
-<p>
-  <a href="BUILDING.md"><img src="https://img.shields.io/badge/Developer_guide-BUILDING.md-b3261e?style=for-the-badge" alt="Developer guide"></a>
-  <a href="https://github.com/jonhaldors/hordes-of-azeroth-server"><img src="https://img.shields.io/badge/Server_code-hordes--of--azeroth--server-4a3a36?style=for-the-badge" alt="Server code"></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Changelog-CHANGELOG.md-4a3a36?style=for-the-badge" alt="Changelog"></a>
-</p>
+- 进五人副本 3 秒后自动补满队伍。登录时就在副本里也算进入。
+- 活着离开副本，副本里补的 bot 会解散；死了跑尸的路上不会解散。
+- 团队副本不会自动补。在野外想带 bot 做精英任务，用「补满队伍」或 `.bots fill`。
 
-<br>
+**GMBox 的「副本」页**：输入 `/gd`，或者右键小地图上的 GMBox 按钮打开。
+
+- **我的职责**：自动、坦克、治疗、输出四选一，bot 会补齐你之外的职责。选“自动”时，按职业、天赋和是否带盾来判断。
+- **进副本自动补机器人**开关，**补满队伍**，**解散机器人**。
+- **副本列表**：按推荐等级排序，颜色和任务日志一样。点一下直接传送进副本，这个功能需要 GM 账号。
+- **指挥**：到我身边、集火目标、停手、坦克拉怪（输出 bot 等 10 秒再动手）、原地待命、继续。
+
+不用插件也可以直接输命令：
+
+| 命令 | 作用 |
+|---|---|
+| `.bots` | 查看自己的职责和自动补位设置 |
+| `.bots role tank\|healer\|dps\|auto` | 设定自己的职责 |
+| `.bots auto on\|off` | 进副本是否自动补 bot |
+| `.bots fill` / `.bots dismiss` | 立刻补满 / 解散 bot |
+| `.partybot cometome` | 所有 bot 到你身边 |
+| `.partybot attackstart` / `attackstop` | 集火你的目标 / 停手 |
+| `.partybot pull` | 坦克 bot 去拉你选中的怪 |
+| `.partybot pause` / `unpause` | 原地待命 / 继续（选中某个 bot 时只对它生效） |
+
+### GMBox 的其他页
+
+- **传送**：服务器上的 997 个传送点，中文、英文、拼音都能搜。也可以用 `/gt 地名`。
+- **物品**：按名字或 id 搜物品放进背包，可以勾选“我能用”。也可以用 `/gi 名字 数量`。
+- **工具**：GM 模式、无敌、飞行、复活、修理、学技能、加速、加钱加等级，以及任意命令输入框。
 
 ---
 
-## About
+## 目录
 
-Hordes of Azeroth is an unofficial fan project. Blizzard Entertainment didn't make it, doesn't endorse it, and has no part in it.
+| 位置 | 内容 |
+|---|---|
+| `server/core` | 服务端（子模块，`classic` 分支）：原版 vmangos 加上 macOS 修复和副本机器人 `src/game/PlayerBots/DungeonBotMgr.*` |
+| `client` | 客户端（子模块）：[benilla](https://github.com/samwhosung/benilla)，用 Rust 从零写的 1.12 客户端 |
+| `Interface/AddOns/GMBox` | GMBox 插件 |
+| `config/` | 服务端配置改动（`*.overrides.conf`）和 MariaDB 配置 |
+| `tools/macos/` | 构建、安装、启动脚本 |
+| `benilla-config/` | 客户端设置、插件（`AddOns/`）和插件存档（`saved/`），不进 git |
+| `Data/` | 指向客户端 MPQ 的链接，不进 git |
+| `server/run`、`server/data`、`server/logs` | 服务端运行目录、地图数据、日志，不进 git |
 
-Nothing in this repository or in the releases comes from the game: no models, textures, sounds, maps, interface files or game data. The game runs on a modified version of [benilla](https://github.com/samwhosung/benilla), which reads the models, maps and sounds from a 1.12.1 client you own. The launcher builds the rest from those files on your PC: the server's map data and the spell effects patch. The one thing added is the monster paths: custom navigation meshes, which say only where monsters can walk, with no models, textures or terrain in them. Everything under `Interface/` in this repository is written for this project.
+服务端完全是 vmangos 原版加我们自己的少量提交，跟进上游很直接：
 
-World of Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc.
+```sh
+cd server/core
+git fetch upstream            # upstream = https://github.com/vmangos/core.git
+git merge upstream/development
+cd ../.. && tools/macos/build-classic.sh server && tools/macos/setup-classic.sh
+```
 
-Our code is licensed under the [GNU General Public License v3.0](LICENSE). The game client is a modified version of [benilla](https://github.com/samwhosung/benilla), under MIT or Apache-2.0. The server is a fork of [VMaNGOS](https://github.com/vmangos/core), published as [hordes-of-azeroth-server](https://github.com/jonhaldors/hordes-of-azeroth-server) under GPL-2.0. The other projects we build on or download, and their licences, are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+新增数据库迁移文件（`server/core/sql/migrations`）之后要重新编译服务端，因为 `mangosd` 会把迁移列表编进程序。数据库缺迁移时它会拒绝启动。
+
+---
+
+## 常见问题
+
+**客户端进游戏后十几秒自己退出了。**
+插件超过了 1.12 默认的 48 MB 脚本内存上限。`setup-classic.sh` 会在 `benilla-config/config.toml` 里设置 `scriptMemory = "0"`（不限），重新运行一遍即可。
+
+**服务器重启后，原来在副本里下线的角色出现在副本门口外面。**
+这是原版机制：重启后副本实例没了，角色会被放到门口。走进传送门就会照常补 bot。
+
+**GM 命令没反应，提示“您无法使用此命令”。**
+GM 权限读的是 `classic_realmd.account_access` 表，不是 `account.gmlevel`。用 `tools/macos/create-account.sh 账号 密码 gm` 建账号，或者在服务器控制台执行 `account set gmlevel 账号 6`。
+
+**bot 太弱或者太强。**
+副本难度还没调，这是下一步要做的。
+
+---
+
+## 关于
+
+非官方的爱好者项目，与 Blizzard Entertainment 无关。仓库和构建产物里不含任何游戏本身的文件：模型、贴图、声音、地图和游戏数据都来自你自己的 1.12.1 客户端。
+
+World of Warcraft 和 Blizzard Entertainment 是 Blizzard Entertainment, Inc. 的商标或注册商标。
+
+本仓库代码使用 [GNU General Public License v3.0](LICENSE)。客户端基于 [benilla](https://github.com/samwhosung/benilla)（MIT 或 Apache-2.0）。服务端基于 [VMaNGOS](https://github.com/vmangos/core)（GPL-2.0）。第三方插件各有各的许可，由安装脚本从你自己的插件文件夹复制，不随仓库分发。其他依赖见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+
+`BUILDING.md` 和 `CHANGELOG.md` 记录的是原来的幸存者玩法（Windows 启动器版），不适用于 `classic` 分支。
